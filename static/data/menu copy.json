@@ -1,0 +1,66 @@
+{
+  "nav": {
+    "menu_name": "Menú Principal",
+    "items": [
+      {
+        "title": "Inicio",
+        "url": "",
+        "children": []
+      },
+      {
+        "title": "Configuración",
+        "url": "#",
+        "children": [
+          {
+            "title": "Correo",
+            "url": "/config/correo",
+            "children": []
+          },
+          {
+            "title": "Condominios",
+            "url": "/config/condominios",
+            "children": [
+              {
+                "title": "Planes de Pago",
+                "url": "/config/condominios/planes",
+                "children": [
+                  {
+                    "title": "Plan Básico",
+                    "url": "/config/condominios/planes/basico",
+                    "children": []
+                  },
+                  {
+                    "title": "Plan Premium",
+                    "url": "/config/condominios/planes/premium",
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Reportes",
+        "url": "/reportes",
+        "children": [
+          {
+            "title": "Financieros",
+            "url": "/reportes/financieros",
+            "children": []
+          },
+          {
+            "title": "Operativos",
+            "url": "/reportes/operativos",
+            "children": []
+          }
+        ]
+      },
+      {
+        "title": "Cerrar Sesión",
+        "url": "/logout",
+        "children": []
+      }
+    ]
+  }
+}

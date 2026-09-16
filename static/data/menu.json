@@ -1,0 +1,33 @@
+{
+  "nav": {
+    "menu_name": "Menú Principal",
+    "items": [
+      {
+        "title": "Inicio",
+        "url": "home",
+        "children": []
+      },
+      {
+        "title": "Configuración",
+        "url": "",
+        "children": [
+          {
+            "title": "Organizaciones",
+            "url": "organization:list",
+            "children": []
+          }
+        ]
+      },
+      {
+        "title": "Error",
+        "url": "error_page",
+        "children": []
+      },
+      {
+        "title": "Cerrar Sesión",
+        "url": "logout",
+        "children": []
+      }
+    ]
+  }
+}

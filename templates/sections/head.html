@@ -1,0 +1,23 @@
+<header style="display:flex; align-items:center; justify-content:space-between; background:#343a40; color:white; padding:1rem;">
+
+  <!-- Título al inicio -->
+  <h2 style="margin:0;">Panel de Administración</h2>
+
+  <!-- Datos del usuario al final -->
+  <div style="text-align:right; margin-left:auto; margin-right:1rem; line-height:1.2;">
+    <p style="margin:2px 0;">Bienvenido, {{ hdr_nombre }}</p>
+    <p style="margin:2px 0;">Email: {{ hdr_email }}</p>
+    <p style="margin:2px 0;">Idioma: {{ hdr_idioma }}</p>
+  </div>
+
+  <div style="display:flex; flex-direction:column; align-items:center; text-align:center; margin-right:1rem;">
+    <!-- Imagen controlada globalmente por el Context Processor -->
+    {% if hdr_imagen %}
+      <img src="{{ hdr_imagen }}" alt="Foto de perfil"
+        style="width:60px; height:60px; border-radius:50%; margin-bottom:5px;">
+    {% else %}
+      <p style="margin:0;">No hay imagen asignada</p>
+    {% endif %}
+    <p style="margin:5px 0 0 0;">{{ hdr_tipo_usuario }}</p>
+  </div>
+</header>

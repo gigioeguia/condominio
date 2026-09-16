@@ -1,0 +1,139 @@
+{% load django_tables2 %}
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead>
+            <tr>
+                {% for column in table.columns %}
+                    <th>
+                        {% if column.orderable %}
+                            <a href="?{% querystring sort=column.order_by.0 page=None %}" class="text-decoration-none" >
+                                {{ column.header }}
+                                {% if column.is_ordered %}
+                                    {% if column.order_by.current == column.order_by.0 %}
+                                        <i class="bi bi-arrow-up"></i>
+                                    {% else %}
+                                        <i class="bi bi-arrow-down"></i>
+                                    {% endif %}
+                                {% else %}
+                                    <i class="bi bi-arrow-down-up text-muted"></i>
+                                {% endif %}
+                            </a>
+                        {% else %}
+                            {{ column.header }}
+                        {% endif %}
+                    </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in table.paginated_rows %}
+
+                {# Fila principal #}
+                <tr class="organization-row" data-id="{{ row.record.abbr }}" data-name="{{ row.record.name }}" style="cursor: pointer;">
+                    {% for column, cell in row.items %}
+                        <td>{{ cell }}</td>
+                    {% endfor %}
+                </tr>
+                {# Fila expandible de detalles #}
+                <tr id="details-{{ row.record.abbr }}" class="details-row table-group-divider details-row" style="display: none;" >
+                    <td colspan="{{ table.columns|length }}">
+                        <div class="details-content p-3 bg-light border rounded">
+                            <span class="text-muted">
+                                Seleccione una fila para cargar la información.
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+
+            {% empty %}
+                <tr>
+                    <td colspan="{{ table.columns|length }}" class="text-center">
+                        No se encontraron organizaciones.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if table.page %}
+    <nav aria-label="Paginación" class="pagination-container w-100">
+        <ul class="pagination justify-content-center">
+            {% if table.page.has_previous %}
+                <li class="page-item">
+                    <a
+                        class="page-link"
+                        href="?{% querystring page=table.page.previous_page_number %}"
+                    >
+                        Anterior
+                    </a>
+                </li>
+            {% endif %}
+            <li class="page-item active">
+                <span class="page-link">
+                    Página {{ table.page.number }}
+                    de {{ table.page.paginator.num_pages }}
+                </span>
+            </li>
+            {% if table.page.has_next %}
+                <li class="page-item">
+                    <a
+                        class="page-link"
+                        href="?{% querystring page=table.page.next_page_number %}"
+                    >
+                        Siguiente
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
+
+<script>
+  $(document).ready(function() {
+    $(".organization-row").on("click", function() {
+      const rowName = $(this).data("id");   // viene de row.record.name
+      const detailsRow = $("#details-" + rowName);
+      const rowCompany = $(this).data("name");
+
+      if (detailsRow.is(":visible")) {
+        detailsRow.hide();
+        return;
+      }
+
+      $(".details-row").hide();
+
+      detailsRow.find(".details-content").html(
+        '<div class="text-center text-muted">Cargando detalle...</div>'
+      );
+      detailsRow.show();
+
+      // Construcción de la URL con el namespace "organization"
+      $.ajax({
+        url: "{% url 'organization:get_detalle' 'REPLACE_NAME' %}".replace("REPLACE_NAME", rowCompany),
+        type: "GET",
+        success: function(data) {
+          console.log(data);
+          detailsRow.find(".details-content").html(`
+            <div class="info-grid">
+            <div><strong>Organización:</strong> ${data.company_name}</div>
+            <div><strong>Abreviatura:</strong> ${data.abbr}</div>
+            <div><strong>RFC:</strong> ${data.tax_id}</div>
+            <div><strong>Teléfono:</strong> ${data.phone_no}</div>
+            <div><strong>Correo:</strong> ${data.email}</div>
+            </div>
+          `);
+        },
+        error: function() {
+          detailsRow.find(".details-content").html(
+            '<div class="alert alert-danger">Error al cargar detalle.</div>'
+          );
+        }
+      });
+    });
+  });
+</script>
+
+
+

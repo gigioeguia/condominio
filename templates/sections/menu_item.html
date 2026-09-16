@@ -1,0 +1,23 @@
+<li class="nav-item menu-item">
+
+    {% if item.children %}
+        <button type="button" class="nav-link menu-toggle w-100 text-start border-0 bg-transparent" aria-expanded="false">
+            <span>{{ item.title }}</span>
+            <span class="arrow">▸</span>
+        </button>
+    {% else %}
+        <a href="{% url item.url %}" class="nav-link menu-link btnSpiner">
+            {{ item.title }}
+            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+        </a>
+    {% endif %}
+
+    {% if item.children %}
+        <ul class="nav flex-column ms-3 submenu">
+            {% for child in item.children %}
+                {% include "sections/menu_item.html" with item=child %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+</li>

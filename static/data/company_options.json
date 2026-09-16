@@ -1,0 +1,29 @@
+{
+  "title": "Importación de datos",
+  "tabs": [
+    {
+      "name": "Compañia",
+      "url": "organization:compania_create",
+      "class": "btn-primary",
+      "type": "compania",
+      "id": "id_tab_compania",
+      "disabled": "0"
+    },
+    {
+      "name": "Cuentas",
+      "url": "organization:catalogo_cuentas",
+      "class": "btn-success",
+      "type": "acount",
+      "id": "id_tab_cuentas",
+      "disabled": "1"
+    },
+    {
+      "name": "Email",
+      "url": "organization:import_json",
+      "class": "btn-success",
+      "type": "email",
+      "id": "id_tab_email",
+      "disabled": "1"
+    }
+  ]
+}

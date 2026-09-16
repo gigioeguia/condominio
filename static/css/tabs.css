@@ -1,0 +1,19 @@
+/* Pestaña activa */
+.nav-tabs .nav-link.active {
+    background-color: #0d6efd !important;
+    color: white !important;
+    border-color: #0d6efd#0d6efd #fff !important;
+    font-weight: bold;
+}
+
+/* Pestañas inactivas */
+.nav-tabs .nav-link:not(.active) {
+    color: #6c757d;
+    background-color: #f8f9fa;
+}
+
+/* Efecto hover solo en inactivas */
+.nav-tabs .nav-link:not(.active):hover {
+    background-color: #0d6efd;
+    color: #212529;
+}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Importar organización
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <ul class="nav nav-tabs mb-4">
+
+        {% for tab in component_data.tabs %}
+    <li class="nav-item">
+        <a  id="{{tab.id}}"
+            class="nav-link {{ tab.class }}{% if active_tab == tab.type %} active{% endif %}{% if disabled_tab == tab.disabled %} disabled{% endif %}"
+            href="{% url tab.url %}"
+        >
+            {{ tab.name }}
+        </a>
+    </li>
+{% endfor %}
+
+    </ul>
+
+    {% block import_content %}
+    {% endblock %}
+</div>
+
+
+{% endblock %}

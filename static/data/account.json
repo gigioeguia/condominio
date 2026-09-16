@@ -1,0 +1,175 @@
+[
+    {
+        "account_name": "name_default_bank_account",
+        "parent_account": "EFECTIVO Y VALORES NEGOCIABLES - abbr",
+        "parents_account": [
+            "ACTIVO CIRCULANTE - abbr",
+            "ACTIVO - abbr"
+            ], 
+        "account_type": "Bank",
+        "company": "company_name",
+        "currency": "default_currency",
+        "is_group": 0,
+        "field": "default_bank_account"
+    },
+    {
+        "account_name": "name_default_receivable_account",
+        "parent_account": "ACTIVO CIRCULANTE - abbr",
+        "parents_account": [
+                "ACTIVO - abbr"
+            ], 
+        "account_type": "Receivable",
+        "company": "company_name",
+        "currency": "default_currency",
+        "is_group": 0,
+        "field": "default_receivable_account"
+    },
+    {
+        "account_name": "name_default_payable_account",
+        "parent_account": "DOCUMENTOS Y CUENTAS POR PAGAR - abbr",
+        "parents_account": [
+                    "PASIVO A CORTO PLAZO - abbr",
+                    "PASIVO - abbr"
+                ], 
+        "account_type": "Payable",
+        "company": "company_name",
+        "currency": "default_currency",
+        "is_group": 0,
+        "field": "default_payable_account"
+    },
+    {
+        "account_name": "name_default_tax_account",
+        "parent_account": "COSTO - abbr",
+        "parents_account": [
+             "COSTO - abbr"
+        ], 
+        "account_type": "Expense",
+        "company": "company_name",
+        "currency": "default_currency",
+        "is_group": 0,
+        "field": "default_expense_account "
+    },
+    {
+        "account_name": "name_default_tax_account",
+        "parent_account": "VENTAS - abbr",
+        "parents_account": [
+            "INGRESOS - abbr"
+        ], 
+        "account_type": "Income",
+        "company": "company_name",
+        "currency": "default_currency",
+        "is_group": 0,
+        "field": "default_income_account "
+    },
+    {
+        "account_name": "name_default_tax_account",
+        "parent_account": "ACTIVO CIRCULANTE - abbr",
+        "parents_account": [
+            "ACTIVO - abbr"
+        ], 
+        "account_type": "Asset",
+        "company": "company_name",
+        "currency": "default_currency",
+        "is_group": 0,
+        "field": "default_inventory_account "
+    },
+    
+    
+    {
+        "account_name": "name_default_tax_account",
+        "parent_account": "IMPUESTOS PAGADOS POR ANTICIPADO - abbr",
+        "parents_account": [
+            "ACTIVO CIRCULANTE - abbr",
+            "ACTIVO - abbr"
+        ], 
+        "account_type": "Receivable",
+        "company": "company_name",
+        "currency": "default_currency",
+        "is_group": 0,
+        "field": "default_tax_account "
+    },
+    {
+        "account_name": "name_payable",
+        "parent_account": "IMPUESTOS Y ARANCELES - abbr",
+        "parents_account": [
+            "PASIVO - abbr"
+        ], 
+        "account_type": "Payable",
+        "company": "company_name",
+        "currency": "default_currency",
+        "is_group": 0,
+        "field": ""
+    },
+    {
+        "account_name": "name_fixedAsset",
+        "parent_account": "ACTIVO FIJO - abbr",
+        "parents_account": [
+            "ACTIVO FIJO NETO - abbr",
+            "ACTIVO LARGO PLAZO - abbr",
+            "ACTIVO - abbr"
+        ], 
+        "account_type": "Fixed Asset",
+        "company": "company_name",
+        "currency": "default_currency",
+        "is_group": 0,
+        "field": "",
+        "root_type": "Asset"
+    },
+    {
+        "account_name": "name_accumulatedDepreciation",
+        "parent_account": "DEPRECIACION Y AMORTIZACION ACUMULADAS - abbr",
+        "parents_account": [
+            "ACTIVO FIJO NETO - abbr",
+            "ACTIVO LARGO PLAZO - abbr",
+            "ACTIVO - abbr"
+        ], 
+        "account_type": "Accumulated Depreciation",
+        "company": "company_name",
+        "currency": "default_currency",
+        "is_group": 0,
+        "field": "",
+        "root_type": "Asset"
+    },
+    {
+        "account_name": "name_depreciation",
+        "parent_account": "DEPRECIACION - abbr",
+        "parents_account": [
+            "DEPRECIACION Y AMORTIZACION - abbr",
+            "GASTOS OPERATIVOS - abbr",
+            "GASTOS - abbr"
+        ], 
+        "account_type": "Depreciation",
+        "company": "company_name",
+        "currency": "default_currency",
+        "is_group": 0,
+        "field": "",
+        "root_type": "Expense"
+    },
+    {
+        "account_name": "name_capital_work_in_progress",
+        "parent_account": "ACTIVO FIJO - abbr",
+        "parents_account": [
+            "ACTIVO FIJO NETO - abbr",
+            "ACTIVO LARGO PLAZO - abbr",
+            "ACTIVO - abbr"
+        ], 
+        "account_type": "Capital Work in Progress",
+        "company": "company_name",
+        "currency": "default_currency",
+        "is_group": 0,
+        "field": "",
+        "root_type": "Asset"
+    },   
+    {
+        "account_name": "name_default_bank_account",
+        "parent_account": "CAPITAL - abbr",
+        "parents_account": [
+            "CAPITAL - abbr"
+        ], 
+        "account_type": "Equity",
+        "company": "company_name",
+        "currency": "default_currency",
+        "is_group": 0,
+        "field": "default_equity_account"
+    } 
+]    

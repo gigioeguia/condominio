@@ -1,0 +1,62 @@
+<nav aria-label="breadcrumb" class="w-100 mb-3">
+    <ol class="breadcrumb">
+
+        {# Inicio siempre visible #}
+        <li class="breadcrumb-item breadcrumb-home">
+            <a href="{% url 'home' %}" title="Inicio">
+                <i class="bi bi-house-door"></i>
+                <span class="visually-hidden">Inicio</span>
+            </a>
+        </li>
+
+        {# Si hay más de cuatro niveles #}
+        {% if breadcrumbs|length > 4 %}
+
+            <li class="breadcrumb-item breadcrumb-ellipsis">
+                <span aria-hidden="true">…</span>
+                <span class="visually-hidden">
+                    Más niveles de navegación
+                </span>
+            </li>
+
+            {% for breadcrumb in breadcrumbs|slice:"-4:" %}
+                {% if breadcrumb.url %}
+                    <li class="breadcrumb-item">
+                        <a href="{% url breadcrumb.url %}">
+                            {{ breadcrumb.label }}
+                        </a>
+                    </li>
+                {% else %}
+                    <li
+                        class="breadcrumb-item active"
+                        aria-current="page"
+                    >
+                        {{ breadcrumb.label }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+        {# Si hay cuatro niveles o menos, mostrar todos #}
+        {% else %}
+
+            {% for breadcrumb in breadcrumbs %}
+                {% if breadcrumb.url %}
+                    <li class="breadcrumb-item">
+                        <a href="{% url breadcrumb.url %}">
+                            {{ breadcrumb.label }}
+                        </a>
+                    </li>
+                {% else %}
+                    <li
+                        class="breadcrumb-item active"
+                        aria-current="page"
+                    >
+                        {{ breadcrumb.label }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+        {% endif %}
+
+    </ol>
+</nav>

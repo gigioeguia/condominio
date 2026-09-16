@@ -1,0 +1,26 @@
+{% extends "sections/tab.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block import_content %}
+<div class="container-fluid px-4 py-3">
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <form method="post">
+        {% csrf_token %}
+
+        {% crispy form %}
+
+    </form>
+
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/forms.js' %}"></script>
+{% endblock %}

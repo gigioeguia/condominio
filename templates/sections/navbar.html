@@ -1,0 +1,11 @@
+{% load static %}
+
+<nav class="sidebar bg-light border-end vh-100">
+  <ul class="nav flex-column nav-pills p-3">
+    {% for item in menu_items %}
+      {% include "sections/menu_item.html" with item=item %}
+    {% endfor %}
+  </ul>
+</nav>
+
+<script src="{% static 'js/menus.js' %}"></script>

@@ -1,0 +1,65 @@
+<a
+    href="{% url 'organization:compania' record.name %}"
+    class="btn btn-sm btn-warning"
+    title="Modificar"
+    aria-label="Modificar"
+    onclick="event.stopPropagation();">
+    <i class="bi bi-pencil-square" aria-hidden="true"></i>
+</a>
+
+<button
+    type="button"
+    class="btn btn-sm btn-danger"
+    data-bs-toggle="modal"
+    data-bs-target="#deleteModal{{ record.abbr }}"
+    title="Eliminar"
+    aria-label="Eliminar"
+    onclick="event.stopPropagation();">
+    <i class="bi bi-trash" aria-hidden="true"></i>
+</button>
+
+<div class="modal fade" id="deleteModal{{ record.abbr }}" tabindex="-1"
+     aria-labelledby="deleteModalLabel{{ record.name }}"
+     aria-hidden="true">
+
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel{{ record.id }}">
+                    Confirmar eliminación
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar">
+                </button>
+            </div>
+
+            <div class="modal-body">
+                ¿Desea eliminar la empresa
+                <strong>{{ record.name }}</strong>?
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                        onclick="event.stopPropagation();">
+                    Cancelar
+                </button>
+
+                <form method="post"
+                      action="{% url 'organization:delete' record.name %}">
+                    {% csrf_token %}
+
+                    <button type="submit" class="btn btn-danger" onclick="event.stopPropagation();">
+                        Sí, eliminar
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>

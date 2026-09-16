@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load static %}
+{% load render_table from django_tables2 %}
+{% block content %}
+{% if error_message %}
+<div class="alert alert-danger">
+  {{ error_message }}
+</div>
+{% endif %}
+<div class="filters-container">
+  <section class="search-section">
+    <form method="get" action="{% url 'organization:list' %}">
+      <input type="text" name="name" value="{{ request.GET.name|default:'' }}" placeholder="Buscar por nombre">
+
+      <input type="text" name="abbr" value="{{ request.GET.abbr|default:'' }}" placeholder="Abreviatura">
+
+      <input type="text" name="country" value="{{ request.GET.country|default:'' }}" placeholder="País">
+
+      <button type="submit" class="btn btn-primary" title="Buscar" aria-label="Buscar">
+        <i class="bi bi-search"></i>
+      </button>
+    </form>
+  </section>
+  <section class="actions-section">
+    <!-- Refrescar -->
+    <a href="{% url 'organization:list' %}" class="btn btn-info btnSpiner" title="Refrescar" aria-label="Refrescar">
+      <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+      <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+    </a>
+
+    <!-- Agregar -->
+    <a href="{% url 'organization:compania_create'%}" class="btn btn-primary btnSpiner" title="Agregar" aria-label="Agregar">
+      <i class="bi bi-plus-lg" aria-hidden="true"></i>
+      <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+    </a>
+
+    <a href="{% url 'organization:import_file' %}" class="btn btn-dark btnSpiner" title="Importar" aria-label="Importar">
+      <i class="bi bi-upload" aria-hidden="true"></i>
+      <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+    </a>
+
+    <!-- Exportar Excel -->
+    <a href="?_export=xlsx" class="btn btn-success btnSpiner" title="Exportar a Excel" aria-label="Exportar a Excel">
+      <i class="bi bi-file-earmark-excel" aria-hidden="true"></i>
+      <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+    </a>
+
+    <!-- Exportar CSV -->
+    <a href="?_export=csv" class="btn btn-warning btnSpiner" title="Exportar CSV" aria-label="Exportar CSV">
+      <i class="bi bi-filetype-csv" aria-hidden="true"></i>
+      <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+    </a>
+  </section>
+
+</div>
+
+<div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="messageModalLabel">Resultado</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+          {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var hasMessages = Number("{{ messages|length|default:'0' }}") || 0;
+    if (hasMessages > 0) {
+      var messageModal = new bootstrap.Modal(document.getElementById('messageModal'));
+      messageModal.show();
+    }
+  });
+</script>
+
+{% render_table table %}
+{% endblock %}
