@@ -406,7 +406,6 @@ def catalogo_cuentas(request):
 
             account_data_chart = []
             plan = obtener_plan_acounts("account.json")
-            print(f":::::::::::datosf {datosf}")    
             # Definimos las cuentas que queremos procesar
             cuentas = [
                 ("cuenta_bancaria", "field", "default_bank_account"),
@@ -418,7 +417,6 @@ def catalogo_cuentas(request):
             
             for campo_form, key_field, valor_field in cuentas:
                 strAcount = datosf.get(campo_form)
-                print(f"-----------------strAcount {strAcount}")
                 """if strAcount:  # solo procesar si hay valor
                     acountNew = {
                         "abbr": strAbbr,
@@ -431,7 +429,6 @@ def catalogo_cuentas(request):
                     itemAcount = procesar_acount_json(acountNew, plan)
                     account_data_chart.append(itemAcount)"""
 
-            print(f":::::::::::account_data_chart {account_data_chart}")
               
             # Guardar los datos en el modelo correspondiente
             # Por ejemplo:
@@ -447,7 +444,6 @@ def catalogo_cuentas(request):
         response = get_company_by_name(company_name)
         data = response.json()
         company = data["data"]
-        print("::::::::::company",company)
         form = CatalogoCuentasForm(
             initial={
                 "abbr": company["abbr"],

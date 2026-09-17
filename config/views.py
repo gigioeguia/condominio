@@ -28,5 +28,5 @@ def paymentPlan_view(request):
 @session_required("login")
 def error_view(request):
     logger.info(f"{request.session["username"]}-> error_view")
-    return render(request, "error.html")
+    return render(request, "error.html", status=400)
 

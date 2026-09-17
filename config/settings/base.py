@@ -43,11 +43,12 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
     'config.middleware.SessionTimeoutMiddleware',
-    'config.middleware.ErrorRedirectMiddleware'
+    'config.middleware.ErrorRedirectMiddleware',
+    'config.middleware.SessionUserMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -135,10 +136,10 @@ DEBUG = os.getenv("DEBUG", "True") == "True"
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_COOKIE_AGE = int(os.getenv("SESSION_COOKIE_AGE", "1800"))
-SESSION_SAVE_EVERY_REQUEST = True
+SESSION_SAVE_EVERY_REQUEST = False
 SESSION_COOKIE_NAME = "sessionid"
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SAMESITE = "None" 
+SESSION_COOKIE_SAMESITE = "Lax" 
 
 
 LOGIN_URL = "/login/"

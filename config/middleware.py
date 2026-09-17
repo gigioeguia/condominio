@@ -8,12 +8,15 @@ from django.conf import settings
 from django.urls import reverse
 
 from apps.login.services import get_logout
+from apps.login.user import ERPUser
 
 class SessionTimeoutMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
+        if request.path.startswith("/static") or request.path in ["/favicon.ico", "/error"]:
+            return self.get_response(request)
         if request.session.get("erp_session"):
             ahora = timezone.now()
             last_activity = request.session.get("last_activity")
@@ -74,3 +77,19 @@ class ErrorRedirectMiddleware:
 
             return redirect("error_page")
         
+class SessionUserMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # 🔑 Ignorar estáticos, favicons y llamadas de DevTools para no romper el flujo
+        if request.path in ['/favicon.ico', '/error/'] or request.path.startswith('/.well-known/'):
+            return self.get_response(request)
+
+        # Si existe sesión activa, asignamos el ERPUser
+        if hasattr(request, "session") and request.session.get("erp_session"):
+            erp_sid = request.session.get("erp_sid")
+            username = request.session.get("username")
+            request.user = ERPUser(erp_sid, username, erp_sid, [])
+
+        return self.get_response(request)

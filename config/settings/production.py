@@ -8,4 +8,4 @@ ALLOWED_HOSTS = [
 
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = "None"
-SESSION_COOKIE_DOMAIN = ".code-connect.tech"
+#SESSION_COOKIE_DOMAIN = ".code-connect.tech"
