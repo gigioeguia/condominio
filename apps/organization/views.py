@@ -6,7 +6,7 @@ import re
 import logging
 
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_GET
 from django_tables2 import RequestConfig
@@ -14,7 +14,7 @@ from django_tables2.export import TableExport
 from .table import OrganizationTable
 from .form import ImportJsonForm, OrganizationForm, OrganizationImportForm, OrganizationFilterForm, CatalogoCuentasForm
 from config.utils import agregar_atributos, getRequestException, agregar_data_Tab, obtener_mensaje_erpnext, procesar_acount_json, obtener_plan_acounts
-from .services import get_organizations, search_resource, get_chart_acount_for_country, get_company_by_name, saveCompany
+from .services import get_organizations, search_resource, get_chart_acount_for_country, get_company_by_name, saveCompany, get_imprimir
 from config.decorators import session_required
 
 logger = logging.getLogger(__name__)
@@ -468,7 +468,36 @@ def catalogo_cuentas(request):
         "organization/accounts.html",
         context
     )
+
+@session_required("login")    
+def imprimir(request, name):
+    try:
+        response = get_imprimir(name)
+        response.raise_for_status()
     
+        if response.status_code != 200:
+            logger.error(f"Error ERPNext: {response.text}")
+            return HttpResponse(
+                "No fue posible generar el documento.",
+                status=500,
+                content_type="text/plain",
+            )
+        else:
+            with open("empresa.pdf", "wb") as archivo:
+                archivo.write(response.content)
+
+            django_response = HttpResponse( response.content, content_type="application/pdf", ) 
+            django_response["Content-Disposition"] = ( f'inline; filename="{name}.pdf"' ) 
+            
+            return django_response
+    
+    except requests.RequestException as e:
+        logger.exception(f"Error comunicando con ERPNext: {e}")
+        return HttpResponse("Error comunicando con ERPNext.", status=502, content_type="text/plain")
+    except Exception as e:
+        logger.exception(f"Error generando PDF de {name}: {e}")
+        return HttpResponse("Error interno generando el documento.", status=500, content_type="text/plain")
+
 def procesar_resultado_empresa(request, result):
     if result.get("session_expired"):
         messages.error(

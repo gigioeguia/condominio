@@ -1,6 +1,16 @@
 <a
+    href="{% url 'organization:imprimir' record.name %}"
+    class="btn btn-sm btn-link"
+    target="_blank"
+    title="Imprimir"
+    aria-label="Imprimir"
+    onclick="event.stopPropagation();">
+    <i class="bi bi-printer" aria-hidden="true"></i>
+</a>
+
+<a
     href="{% url 'organization:compania' record.name %}"
-    class="btn btn-sm btn-warning"
+    class="btn btn-sm btn-link"
     title="Modificar"
     aria-label="Modificar"
     onclick="event.stopPropagation();">
@@ -9,7 +19,7 @@
 
 <button
     type="button"
-    class="btn btn-sm btn-danger"
+    class="btn btn-sm btn-link"
     data-bs-toggle="modal"
     data-bs-target="#deleteModal{{ record.abbr }}"
     title="Eliminar"

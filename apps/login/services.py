@@ -16,12 +16,11 @@ HEADERS = {
     "Cookie": f"sid={os.getenv('ERP_SESSION_ID')}"
 }
 
-"""_summary_
-    Inicia sesión en el sistema ERPNext.
-    Args:
-        username (str): Nombre de usuario.
-        password (str): Contraseña del usuario.
-"""
+def get_logged_user(response):
+    url = f"{ERP_BASE_URL}/api/method/frappe.auth.get_logged_user"
+    response_user = requests.post(url, cookies=response.cookies)
+    return response_user.json()["message"]
+
 def login_user(username,password):
     return requests.post(LOGIN_URL, data={"usr": username, "pwd": password})
 

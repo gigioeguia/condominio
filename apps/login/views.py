@@ -9,7 +9,7 @@ from django.contrib.auth import login
 
 from django.conf import settings
 
-from .services import login_user, get_logout
+from .services import login_user, get_logout, get_logged_user
 from .forms import LoginForm
 from .user import ERPUser
 from config.decorators import session_required
@@ -28,23 +28,24 @@ def login_view(request):
         response = login_user(username, password)
         datos = json.loads(response.content)
         message = datos.get("message")
-        full_name = datos.get("full_name")
-        erp_sid = hashlib.sha256(full_name.encode()).hexdigest()
+        user_name = get_logged_user(response)
+        #full_name = datos.get("full_name")
+        erp_sid = hashlib.sha256(user_name.encode()).hexdigest()
         if message == "Logged In":
-            return guardar_sessionid(request, erp_sid, full_name)
+            return guardar_sessionid(request, erp_sid, user_name)
         else:
             messages.error(request, "Credenciales inválidas")
     return render(request, "login.html", {"form": form})
 
 
 # TODO Rename this here and in `login_view`
-def guardar_sessionid(request, erp_sid, full_name):
+def guardar_sessionid(request, erp_sid, user_name):
     request.session["erp_session"] = True
     request.session["erp_sid"] = erp_sid
-    request.session["username"] = full_name
+    request.session["username"] = user_name
     request.session["last_activity"] = timezone.now().timestamp()
     request.session.save()
-    request.user = ERPUser(erp_sid, full_name, erp_sid, [])
+    request.user = ERPUser(erp_sid, user_name, erp_sid, [])
     response_redirect = redirect("home")
     response_redirect.set_cookie(
         key=settings.SESSION_COOKIE_NAME,  # "sessionid"
@@ -63,10 +64,14 @@ def base_view(request):
     return render(request, "inicio.html")
 
 def logout_view(request):
-    logger.info(f"{request.session["username"]}-> logout_view")
-    sid = request.session.get("erp_session")
-    get_logout(sid)
-    request.session.flush()  # elimina toda la sesión
+    try:
+        logger.info(f"{request.session["username"]}-> logout_view")
+        sid = request.session.get("erp_session")
+        get_logout(sid)
+        request.session.flush()  # elimina toda la sesión
+    except KeyError as e:   
+        logger.warning( f"No existe 'username' en la sesión. " f"Session Key: {request.session.session_key}. " f"Error: {e}" ) 
+        request.session.flush()  
     return redirect("login")
 
 def csrf_failure(request, reason=""):

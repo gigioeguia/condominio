@@ -114,3 +114,18 @@ def search_resource(request, resource, fields):
         params=params,
         timeout=15,
     )
+    
+def get_imprimir(company: str):
+    url = f"{ERP_BASE_URL}/api/method/frappe.utils.print_format.download_pdf"
+    params = {
+        "doctype": "Company",
+        "name": company,
+        "format": "Standard",
+        "no_letterhead": 0
+    }
+    return requests.get(
+            url,
+            headers=HEADERS,
+            params=params,
+            timeout=15,
+        )

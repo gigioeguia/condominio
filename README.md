@@ -1,3 +1,6 @@
+
+########## python manage.py runserver --settings=config.settings.development
+
 export DJANGO_SETTINGS_MODULE=config.settings.development
 
 config/: configuración global.
