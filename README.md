@@ -109,3 +109,27 @@ python manage.py runserver --settings=config.settings.development
 
 En este proyecto no se usa por que no se conecta a la base de datos solo ApiRest
 python manage.py migrate --settings=config.settings.development#condominio
+
+#Build imagen dev
+    docker build -f Dockerfile.dev -t condominios-dev .
+#Levantar entorno dev
+    docker compose -f compose.dev.yml up --build -d
+#ver logs
+    docker compose -f compose.dev.yml logs -f web
+#apagar entorno
+    compose -f compose.dev.yml down
+#Limpiar contenedores e imágenes
+    docker system prune -af --volumes
+    docker rm -f $(docker ps -aq)
+
+#Build imagen prod
+    docker build -f Dockerfile.prod -t myapp-prod .
+#Levantar entorno prod
+    docker compose -f compose.prod.yml up -d --build
+#Ver logs
+    docker compose -f compose.prod.yml logs -f web
+    docker compose -f compose.prod.yml logs -f nginx
+#Apagar entorno
+    docker compose -f compose.prod.yml down
+#Limpiar recursos
+    docker system prune -f    

@@ -593,27 +593,27 @@ class CatalogoCuentasForm(forms.Form):
     )
 
     cuenta_bancaria = forms.CharField(
-        label="Cuenta bancaria por defecto",
+        label="Cuenta bancaria por defecto - default_bank_account",
         required=False,
     )
 
     cuenta_costos_venta = forms.CharField(
-        label="Cuenta de costos (venta) por defecto",
+        label="Cuenta de costos (venta) por defecto - default_expense_account",
         required=False,
     )
 
     cuenta_efectivo = forms.CharField(
-        label="Cuenta de efectivo por defecto",
+        label="Cuenta de efectivo por defecto - default_cash_account",
         required=False,
     )
 
     cuenta_ingresos = forms.CharField(
-        label="Cuenta de ingresos por defecto",
+        label="Cuenta de ingresos por defecto - default_income_account",
         required=False,
     )
 
     cuenta_por_cobrar = forms.CharField(
-        label="Cuenta por cobrar por defecto",
+        label="Cuenta por cobrar por defecto - default_receivable_account",
         required=False,
     )
 
@@ -623,7 +623,7 @@ class CatalogoCuentasForm(forms.Form):
     )
 
     cuenta_por_pagar = forms.CharField(
-        label="Cuenta por pagar por defecto",
+        label="Cuenta por pagar por defecto - default_payable_account",
         required=False,
     )
 
@@ -638,7 +638,7 @@ class CatalogoCuentasForm(forms.Form):
     )
 
     centro_costos = forms.CharField(
-        label="Centro de costos por defecto",
+        label="Centro de costos por defecto - cost_center - round_off_cost_center - depreciation_cost_center",
         required=False,
     )
 
@@ -649,6 +649,11 @@ class CatalogoCuentasForm(forms.Form):
 
     libro_finanzas = forms.CharField(
         label="Libro de Finanzas Predeterminado",
+        required=False,
+    )
+    
+    cuenta_inventarioas = forms.CharField(
+        label="Cuenta inventarios por defecto - default_inventory_account",
         required=False,
     )
 
@@ -711,7 +716,24 @@ class CatalogoCuentasForm(forms.Form):
                     css_class="col-md-5",
                 ),
             ),
-
+            HTML(
+                """
+                <hr class="mt-2 mb-3">
+                <div class="col-12">
+                    <h6 class="mb-3">Cuentas otras predeterminadas</h6>
+                </div>
+                """
+            ),
+            Row(
+                Column(
+                    Field("cuenta_inventarioas"),
+                    css_class="col-md-5"
+                ),
+                Column(
+                    Field(""),
+                    css_class="col-md-5"                    
+                )    
+            ),
             HTML(
                 """
                 <div class="col-12 mt-3">

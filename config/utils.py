@@ -100,10 +100,9 @@ def reemplazar_abbr(valor, abbr):
 def procesar_acount_json(acountNew,account_data_chart):
     for account in account_data_chart:
         existe, valor_field = obtener_valor_field(account, acountNew["claveField"])
-        if existe:
-            if valor_field == acountNew["valorField"]:
+        if existe and valor_field == acountNew["valorField"]:
                 account = reemplazar_abbr(account, acountNew["abbr"])
                 account["account_name"]=acountNew["valorAccountName"]
                 account["company"]=acountNew["valorCompany"]
                 account["currency"]=acountNew["valorCurrency"]
-                return json.dumps( account, ensure_ascii=False )
+                return account

@@ -412,12 +412,13 @@ def catalogo_cuentas(request):
                 ("cuenta_por_cobrar", "field", "default_receivable_account"),
                 ("cuenta_por_pagar", "field", "default_payable_account"),
                 ("cuenta_costos_venta","field", "default_expense_account"),
-                ("cuenta_ingresos","field", "default_income_account")
+                ("cuenta_ingresos","field", "default_income_account"),
+                ("cuenta_efectivo","field","default_cash_account")
             ]
             
             for campo_form, key_field, valor_field in cuentas:
                 strAcount = datosf.get(campo_form)
-                """if strAcount:  # solo procesar si hay valor
+                if strAcount:  # solo procesar si hay valor
                     acountNew = {
                         "abbr": strAbbr,
                         "claveField": key_field,
@@ -427,8 +428,8 @@ def catalogo_cuentas(request):
                         "valorCurrency": strCurrency,
                     }
                     itemAcount = procesar_acount_json(acountNew, plan)
-                    account_data_chart.append(itemAcount)"""
-
+                    account_data_chart.append(itemAcount)
+            print(f"account_data_chart {account_data_chart}")
               
             # Guardar los datos en el modelo correspondiente
             # Por ejemplo:
@@ -458,6 +459,7 @@ def catalogo_cuentas(request):
                 "cuenta_por_cobrar": company["default_receivable_account"],           #open
                 "cuenta_por_pagar": company["default_payable_account"],               #open
                 "centro_costos": company["cost_center"],
+                "cuenta_inventarioas": company["default_inventory_account"]
             }
         )
     context = agregar_atributos(context,"form",form)

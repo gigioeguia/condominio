@@ -10,3 +10,5 @@ staticfiles/
 *.pyc
 .python-version
 *.log
+.env.dev
+.env.prod
