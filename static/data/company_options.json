@@ -3,7 +3,7 @@
   "tabs": [
     {
       "name": "Compañia",
-      "url": "organization:compania_create",
+      "url": "organization:company_cuentas",
       "class": "btn-primary",
       "type": "compania",
       "id": "id_tab_compania",

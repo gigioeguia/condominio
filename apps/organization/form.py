@@ -592,38 +592,38 @@ class CatalogoCuentasForm(forms.Form):
         required=False,
     )
 
-    cuenta_bancaria = forms.CharField(
+    default_cash_account = forms.CharField(
+            label="Cuenta de efectivo por defecto - default_cash_account",
+            required=False,
+    )
+
+    default_bank_account = forms.CharField(
         label="Cuenta bancaria por defecto - default_bank_account",
         required=False,
     )
 
-    cuenta_costos_venta = forms.CharField(
+    default_expense_account = forms.CharField(
         label="Cuenta de costos (venta) por defecto - default_expense_account",
         required=False,
     )
 
-    cuenta_efectivo = forms.CharField(
-        label="Cuenta de efectivo por defecto - default_cash_account",
+    default_payable_account = forms.CharField(
+        label="Cuenta de efectivo por defecto - default_payable_account",
         required=False,
     )
 
-    cuenta_ingresos = forms.CharField(
+    default_income_account = forms.CharField(
         label="Cuenta de ingresos por defecto - default_income_account",
         required=False,
     )
 
-    cuenta_por_cobrar = forms.CharField(
+    default_receivable_account = forms.CharField(
         label="Cuenta por cobrar por defecto - default_receivable_account",
         required=False,
     )
 
-    cuenta_descuento_pago = forms.CharField(
-        label="Cuenta de descuento por pago predeterminado",
-        required=False,
-    )
-
-    cuenta_por_pagar = forms.CharField(
-        label="Cuenta por pagar por defecto - default_payable_account",
+    default_discount_account = forms.CharField(
+        label="Cuenta de descuento por pago predeterminado - default_discount_account",
         required=False,
     )
 
@@ -632,18 +632,18 @@ class CatalogoCuentasForm(forms.Form):
         required=False,
     )
 
-    cuenta_desajuste = forms.CharField(
+    write_off_account = forms.CharField(
         label="Cuenta de Desajuste",
         required=False,
     )
 
-    centro_costos = forms.CharField(
+    cost_center = forms.CharField(
         label="Centro de costos por defecto - cost_center - round_off_cost_center - depreciation_cost_center",
         required=False,
     )
 
-    cuenta_perdidas_ganancias = forms.CharField(
-        label="Cuenta de Pérdidas/Ganancias no realizada",
+    unrealized_profit_loss_account = forms.CharField(
+        label="Cuenta de Pérdidas/Ganancias no realizada - unrealized_profit_loss_account",
         required=False,
     )
 
@@ -652,8 +652,31 @@ class CatalogoCuentasForm(forms.Form):
         required=False,
     )
     
-    cuenta_inventarioas = forms.CharField(
+    default_inventory_account = forms.CharField(
         label="Cuenta inventarios por defecto - default_inventory_account",
+        required=False,
+    )
+    
+    valuation_method = forms.CharField(
+        label="Método de Valoración de Stock predeterminado - valuation_method",
+        required=False,
+    )
+    
+    stock_adjustment_account = forms.CharField(
+        label="Cuenta de ajuste de existencias - stock_adjustment_account",
+        required=False,
+    )
+    
+    accumulated_depreciation_account = forms.CharField(
+        label="Cuenta de depreciación acumulada - accumulated_depreciation_account",
+        required=False,
+    )
+    depreciation_expense_account = forms.CharField(
+        label="Cuenta de gastos de depreciación - depreciation_expense_account",
+        required=False,
+    )
+    stock_received_but_not_billed= forms.CharField(
+        label="Inventario Recibido pero no Facturado - stock_received_but_not_billed",
         required=False,
     )
 
@@ -698,20 +721,20 @@ class CatalogoCuentasForm(forms.Form):
 
             Row(
                 Column(
-                    Field("cuenta_bancaria"),
-                    Field("cuenta_efectivo"),
-                    Field("cuenta_por_cobrar"),
-                    Field("cuenta_por_pagar"),
-                    Field("cuenta_desajuste"),
-                    Field("cuenta_perdidas_ganancias"),
+                    Field("default_cash_account"),
+                    Field("default_bank_account"),
+                    Field("default_payable_account"),
+                    Field("default_receivable_account"),
+                    Field("write_off_account"),
+                    Field("unrealized_profit_loss_account"),
                     css_class="col-md-5",
                 ),
                 Column(
-                    Field("cuenta_costos_venta"),
-                    Field("cuenta_ingresos"),
-                    Field("cuenta_descuento_pago"),
+                    Field("default_expense_account"),
+                    Field("default_income_account"),
+                    Field("default_discount_account"),
                     Field("plantilla_terminos_pago"),
-                    Field("centro_costos"),
+                    Field("cost_center"),
                     Field("libro_finanzas"),
                     css_class="col-md-5",
                 ),
@@ -720,17 +743,37 @@ class CatalogoCuentasForm(forms.Form):
                 """
                 <hr class="mt-2 mb-3">
                 <div class="col-12">
-                    <h6 class="mb-3">Cuentas otras predeterminadas</h6>
+                    <h6 class="mb-3">Cuentas Almacen</h6>
                 </div>
                 """
             ),
             Row(
                 Column(
-                    Field("cuenta_inventarioas"),
+                    Field("default_inventory_account"),
+                    Field("valuation_method"),
                     css_class="col-md-5"
                 ),
                 Column(
-                    Field(""),
+                    Field("stock_adjustment_account"),
+                    Field("stock_received_but_not_billed"),
+                    css_class="col-md-5"                    
+                )    
+            ),
+                        HTML(
+                """
+                <hr class="mt-2 mb-3">
+                <div class="col-12">
+                    <h6 class="mb-3">Cuenta de activo fijo predeterminada</h6>
+                </div>
+                """
+            ),
+            Row(
+                Column(
+                    Field("accumulated_depreciation_account"),
+                    css_class="col-md-5"
+                ),
+                Column(
+                    Field("depreciation_expense_account"),
                     css_class="col-md-5"                    
                 )    
             ),

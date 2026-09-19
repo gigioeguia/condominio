@@ -13,10 +13,7 @@ from .services import login_user, get_logout, get_logged_user
 from .forms import LoginForm
 from .user import ERPUser
 from config.decorators import session_required
-
-logger = logging.getLogger(__name__)
-
-from django.utils import timezone
+from config.utils import agregar_atributos
 
 logger = logging.getLogger(__name__)
 
@@ -28,10 +25,9 @@ def login_view(request):
         response = login_user(username, password)
         datos = json.loads(response.content)
         message = datos.get("message")
-        user_name = get_logged_user(response)
-        #full_name = datos.get("full_name")
-        erp_sid = hashlib.sha256(user_name.encode()).hexdigest()
         if message == "Logged In":
+            user_name = get_logged_user(response)
+            erp_sid = hashlib.sha256(user_name.encode()).hexdigest()
             return guardar_sessionid(request, erp_sid, user_name)
         else:
             messages.error(request, "Credenciales inválidas")
@@ -58,10 +54,16 @@ def guardar_sessionid(request, erp_sid, user_name):
 
 @session_required(url_name="login")
 def base_view(request):
-    # Usar .get() evita fallos si por alguna razón la clave no existiera
-    username = request.session.get("username", "Anónimo")
-    logger.info(f"{username} -> base_view")
-    return render(request, "inicio.html")
+    logger.info("base_view")
+    breadcrumbs = [
+            { "label": "Home", "url": None, }
+        ]
+    context = agregar_atributos({},"breadcrumbs",breadcrumbs)
+    """TO_DO
+        VALIDAR EL USO DE request.session.get("username", "Anónimo") 
+    """
+    #username = request.session.get("username", "Anónimo")
+    return render(request, "inicio.html", context)
 
 def logout_view(request):
     try:

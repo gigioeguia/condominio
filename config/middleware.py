@@ -1,5 +1,6 @@
 # middleware.py
 import datetime
+import logging
 
 from django.utils import timezone
 from django.contrib.auth import logout
@@ -9,6 +10,8 @@ from django.urls import reverse
 
 from apps.login.services import get_logout
 from apps.login.user import ERPUser
+
+logger = logging.getLogger(__name__)
 
 class SessionTimeoutMiddleware:
     def __init__(self, get_response):
@@ -46,7 +49,7 @@ class SessionTimeoutMiddleware:
                     request.session.flush()
                     return redirect(settings.LOGIN_URL)
                 else:
-                    print(f"Sesión activa: inactivo {tiempo_inactivo}s")
+                    logger.info(f"Sesión activa: inactivo {tiempo_inactivo}s")
 
             # Actualiza siempre en formato timestamp
             request.session["last_activity"] = ahora.timestamp()

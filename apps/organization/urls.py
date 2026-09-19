@@ -20,6 +20,7 @@ urlpatterns = [
   path('import_json/', views.organization_import_json, name="import_json" ),
   
   path( "catalogo_cuentas/", views.catalogo_cuentas, name="catalogo_cuentas" ),
+  path( "company_cuentas/", views.company_cuentas, name="company_cuentas" ),
   
   path( "imprimir/<str:name>/", views.imprimir, name="imprimir" ),
 ]

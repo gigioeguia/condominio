@@ -1,6 +1,20 @@
 [
     {
-        "account_name": "name_default_bank_account",
+        "account_name": "default_cash_account",
+        "parent_account": "CAJAS - abbr",
+        "parents_account": [
+            "EFECTIVO Y VALORES NEGOCIABLES - abbr",
+            "ACTIVO CIRCULANTE - abbr",
+            "ACTIVO - abbr"
+            ],
+        "account_type": "Cash",
+        "company": "company_name",
+        "currency": "default_currency",
+        "is_group": 0,
+        "field": "default_cash_account"
+    },
+    {
+        "account_name": "default_bank_account",
         "parent_account": "EFECTIVO Y VALORES NEGOCIABLES - abbr",
         "parents_account": [
             "ACTIVO CIRCULANTE - abbr",
@@ -11,18 +25,6 @@
         "currency": "default_currency",
         "is_group": 0,
         "field": "default_bank_account"
-    },
-    {
-        "account_name": "name_default_receivable_account",
-        "parent_account": "ACTIVO CIRCULANTE - abbr",
-        "parents_account": [
-                "ACTIVO - abbr"
-            ], 
-        "account_type": "Receivable",
-        "company": "company_name",
-        "currency": "default_currency",
-        "is_group": 0,
-        "field": "default_receivable_account"
     },
     {
         "account_name": "name_default_payable_account",
@@ -38,11 +40,22 @@
         "field": "default_payable_account"
     },
     {
-        "account_name": "name_default_tax_account",
-        "parent_account": "COSTO - abbr",
+        "account_name": "default_receivable_account",
+        "parent_account": "CARGOS DIFERIDOS 1 - CTEST",
         "parents_account": [
-             "COSTO - abbr"
+             "ACTIVO LARGO PLAZO - abbr",
+             "ACTIVO - abbr"
         ], 
+        "account_type": "Expense",
+        "company": "company_name",
+        "currency": "default_currency",
+        "is_group": 0,
+        "field": "default_receivable_account"
+    },
+    {
+        "account_name": "default_expense_account",
+        "parent_account": "COSTO - abbr",
+        "parents_account": [ ], 
         "account_type": "Expense",
         "company": "company_name",
         "currency": "default_currency",
@@ -50,7 +63,7 @@
         "field": "default_expense_account"
     },
     {
-        "account_name": "name_default_tax_account",
+        "account_name": "default_income_account",
         "parent_account": "VENTAS - abbr",
         "parents_account": [
             "INGRESOS - abbr"
@@ -62,62 +75,43 @@
         "field": "default_income_account"
     },
     {
-        "account_name": "name_default_tax_account",
+        "account_name": "default_inventory_account",
         "parent_account": "ACTIVO CIRCULANTE - abbr",
         "parents_account": [
             "ACTIVO - abbr"
         ], 
-        "account_type": "Asset",
+        "account_type": "Stock",
         "company": "company_name",
         "currency": "default_currency",
         "is_group": 0,
-        "field": "default_inventory_account "
-    },
-    
-    {
-        "__comment": "IVA ACREDITABLE o PAGADO A PROVEEDORES",
-        "account_name": "name_default_tax_account", 
-        "parent_account": "IMPUESTOS PAGADOS POR ANTICIPADO - abbr",
-        "parents_account": [
-            "ACTIVO CIRCULANTE - abbr",
-            "ACTIVO - abbr"
-        ], 
-        "account_type": "Receivable",
-        "company": "company_name",
-        "currency": "default_currency",
-        "is_group": 0,
-        "field": "default_tax_account "
-    },  
-    {
-        "account_name": "name_default_bank_account",
-        "parent_account": "CAPITAL - abbr",
-        "parents_account": [
-            "CAPITAL - abbr"
-        ], 
-        "account_type": "Equity",
-        "company": "company_name",
-        "currency": "default_currency",
-        "is_group": 0,
-        "field": "default_equity_account"
-    },
-    
-    {
-        "__comment": "IVA ACREDITABLE o PAGADO A PROVEEDORES",
-        "account_name": "name_payable",
-        "parent_account": "IMPUESTOS Y ARANCELES - abbr",
-        "parents_account": [
-            "PASIVO - abbr"
-        ], 
-        "account_type": "Payable",
-        "company": "company_name",
-        "currency": "default_currency",
-        "is_group": 0,
-        "field": ""
+        "field": "default_inventory_account"
     },
     {
-        "__comment": "ACTIVO FIJO CONDOMINIOS",
-        "account_name": "name_fixedAsset",
-        "parent_account": "ACTIVO FIJO - abbr",
+        "account_name": "stock_adjustment_account",
+        "parent_account": "GASTOS GENERALES1 - abbr",
+        "parents_account": [
+            "GASTOS GENERALES - abbr",
+            "GASTOS - abbr"
+        ], 
+        "account_type": "Stock Adjustment",
+        "company": "company_name",
+        "currency": "default_currency",
+        "is_group": 0,
+        "field": "stock_adjustment_account"
+    },
+    {
+        "account_name": "stock_received_but_not_billed",
+        "parent_account": "PASIVO - abbr",
+        "parents_account": [], 
+        "account_type": "Stock Received But Not Billed",
+        "company": "company_name",
+        "currency": "default_currency",
+        "is_group": 0,
+        "field": "stock_received_but_not_billed"
+    },
+    {
+        "account_name": "accumulated_depreciation_account",
+        "parent_account": "DEPRECIACION Y AMORTIZACION ACUMULADAS - abbr",
         "parents_account": [
             "ACTIVO FIJO NETO - abbr",
             "ACTIVO LARGO PLAZO - abbr",
@@ -127,55 +121,60 @@
         "company": "company_name",
         "currency": "default_currency",
         "is_group": 0,
-        "field": "",
-        "root_type": "Asset"
+        "field": "accumulated_depreciation_account"
     },
     {
-        "__comment": "DEPRECIACION ACUMULADA",
-        "account_name": "name_accumulatedDepreciation",
-        "parent_account": "DEPRECIACION Y AMORTIZACION ACUMULADAS - abbr",
-        "parents_account": [
-            "ACTIVO FIJO NETO - abbr",
-            "ACTIVO LARGO PLAZO - abbr",
-            "ACTIVO - abbr"
-        ], 
-        "account_type": "Accumulated Depreciation",
-        "company": "company_name",
-        "currency": "default_currency",
-        "is_group": 0,
-        "field": "",
-        "root_type": "Asset"
-    },
-    {
-        "__comment": "GASTOS DE DEPRECIACION",
-        "account_name": "name_depreciation",
+        "account_name": "depreciation_expense_account",
         "parent_account": "DEPRECIACION - abbr",
         "parents_account": [
             "DEPRECIACION Y AMORTIZACION - abbr",
             "GASTOS OPERATIVOS - abbr",
             "GASTOS - abbr"
         ], 
-        "account_type": "Depreciation",
+        "account_type": "Fixed Asset",
         "company": "company_name",
         "currency": "default_currency",
         "is_group": 0,
-        "field": "",
-        "root_type": "Expense"
+        "field": "depreciation_expense_account"
     },
     {
-        "__comment": "CONSTRUCCION EN PROCESO",
-        "account_name": "name_capital_work_in_progress",
-        "parent_account": "ACTIVO FIJO - abbr",
+        "account_name": "default_discount_account",
+        "parent_account": "GASTOS GENERALES - abbr",
         "parents_account": [
-            "ACTIVO FIJO NETO - abbr",
-            "ACTIVO LARGO PLAZO - abbr",
-            "ACTIVO - abbr"
+            "GASTOS OPERATIVOS - abbr",
+            "GASTOS - abbr"
         ], 
-        "account_type": "Capital Work in Progress",
+        "account_type": "Expense Account",
         "company": "company_name",
         "currency": "default_currency",
         "is_group": 0,
-        "field": "",
-        "root_type": "Asset"
-    } 
+        "field": "default_discount_account"
+    },
+    {
+        "account_name": "write_off_account",
+        "parent_account": "GASTOS GENERALES - abbr",
+        "parents_account": [
+            "GASTOS OPERATIVOS - abbr",
+            "GASTOS - abbr"
+        ], 
+        "account_type": "Expense Account",
+        "company": "company_name",
+        "currency": "default_currency",
+        "is_group": 0,
+        "field": "write_off_account"
+    },
+    {
+        "account_name": "write_off_account",
+        "parent_account": "GASTOS GENERALES - abbr",
+        "parents_account": [
+            "GASTOS OPERATIVOS - abbr",
+            "GASTOS - abbr"
+        ], 
+        "account_type": "Expense",
+        "company": "company_name",
+        "currency": "default_currency",
+        "is_group": 0,
+        "field": "write_off_account"
+    }
+    
 ]    

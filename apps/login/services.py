@@ -18,8 +18,29 @@ HEADERS = {
 
 def get_logged_user(response):
     url = f"{ERP_BASE_URL}/api/method/frappe.auth.get_logged_user"
-    response_user = requests.post(url, cookies=response.cookies)
-    return response_user.json()["message"]
+    try:
+        response_user = requests.get(
+            url,
+            cookies=response.cookies,
+            timeout=10,
+        )
+    except requests.RequestException as exc:
+        return None
+
+    try:
+        data = response_user.json()
+    except ValueError:
+        return None
+
+    if response_user.status_code == 403:
+        return None
+
+    if response_user.status_code != 200:
+        return None
+
+    user_name = data.get("message")
+
+    return user_name or None
 
 def login_user(username,password):
     return requests.post(LOGIN_URL, data={"usr": username, "pwd": password})

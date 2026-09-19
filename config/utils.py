@@ -75,9 +75,7 @@ def obtener_mensaje_erpnext(data):
     )
 
 def obtener_valor_field(datos,key):
-    if key in datos:
-        return True, datos[key]
-    return False, None 
+    return (True, datos[key]) if key in datos else (False, None)
 
 def reemplazar_abbr(valor, abbr):
     if isinstance(valor, str):
