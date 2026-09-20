@@ -15,7 +15,7 @@ from django_tables2.export import TableExport
 from .table import OrganizationTable
 from .form import ImportJsonForm, OrganizationForm, OrganizationImportForm, OrganizationFilterForm, CatalogoCuentasForm
 from config.utils import agregar_atributos, getRequestException, agregar_data_Tab, obtener_mensaje_erpnext, procesar_acount_json, \
-    obtener_plan_acounts
+    obtener_plan_acounts, serialize_dates
 from .services import get_organizations, search_resource, get_chart_acount_for_country, get_company_by_name, saveCompany, get_imprimir, \
     get_account, get_value_field, update_fiedl_company 
 from config.decorators import session_required
@@ -124,7 +124,7 @@ def compania(request,name=None):
         form = OrganizationForm(request.POST)
         if form.is_valid():
             try:
-                result = save_company_data(request, context["action"] , form.cleaned_data)
+                result = save_company_data(request, form.cleaned_data)
                 return procesar_resultado_empresa(request, result)
             except json.JSONDecodeError:
                 form.add_error("text", "El contenido no es un JSON válido.")
@@ -137,6 +137,7 @@ def compania(request,name=None):
         company = data["data"]
         context = agregar_atributos(context, "action", 1)
         context = agregar_atributos(context, "disabled_tab", "0")
+        company["action"]=1
         form = OrganizationForm(initial=company)   
         form.fields["company_name"].widget.attrs["readonly"] = True
         form.fields["abbr"].widget.attrs["readonly"] = True
@@ -263,17 +264,15 @@ def delete(request, name):
     return redirect("organization:list")  
 
 @session_required("login")
-def save_company_data(request, action=1, company_data=None):
+def save_company_data(request, company_data=None):
     logger.info(f"{request.session["username"]}-> save_company_data")
-    if action == 1:
-        response = saveCompany("put", company_data)
-
-    if action == 0:
-        response = saveCompany("post", company_data)
-    
+    data = serialize_dates(company_data)
+    if int(data["action"]) == 1:
+        response = saveCompany("put", data)
+    if int(data["action"]) == 0:
+        response = saveCompany("post", data)
     mensaje = obtener_mensaje_erpnext(response.text)
     resultado = agregar_atributos({}, "status_code", response.status_code)
-
     if response.status_code != 200:
         resultado = agregar_atributos(resultado, "mensaje", mensaje)  
         return resultado    
@@ -325,8 +324,8 @@ def organization_import_file(request):
                 organization = agregar_atributos(organization, "registration_details", fila["registration_details"])
                 organization = agregar_atributos(organization, "chart_of_accounts", fila["chart_of_accounts"])
                 organization = agregar_atributos(organization, "create_chart_of_accounts_based_on", fila["create_chart_of_accounts_based_on"])
-            
-            result = save_company_data(request,"Crear", organization)
+                organization = agregar_atributos(organization, "action", 0)
+            result = save_company_data(request, organization)
             return procesar_resultado_empresa(request, result)
     else:
         form = OrganizationImportForm()
@@ -365,7 +364,8 @@ def organization_import_json(request):
         if form.is_valid():
             try:
                 organization = json.loads(form.cleaned_data["text"])
-                result = save_company_data(request,"Crear", organization)
+                organization["action"]=0
+                result = save_company_data(request, organization)
                 return procesar_resultado_empresa(request, result)
             except json.JSONDecodeError:
                 form.add_error("text", "El contenido no es un JSON válido.")
@@ -378,164 +378,135 @@ def organization_import_json(request):
         context,
     )
 
+# --- Helpers ---
+def validar_cuentas(campos_final, datosf):
+    acount_no_existe, acount_si_existe = [], []
+    for campo in campos_final:
+        strAcountName = datosf.get(campo)
+        response = get_account(strAcountName)
+        if response.status_code != 200:
+            logger.error("Error HTTP get_account: %s %s", response.status_code, response.text)
+            continue
+        acount = response.json().get("data")
+        target_list = acount_si_existe if acount else acount_no_existe
+        target_list.append({"field": campo, "value": strAcountName})
+    return acount_no_existe, acount_si_existe
+
+
+def comparar_valores(company_name, cuentas):
+    acount_save_field = []
+    for acountForm in cuentas:
+        response = get_value_field(company_name, acountForm["field"])
+        if response.status_code != 200:
+            logger.error("Error HTTP get_value_field: %s %s", response.status_code, response.text)
+            continue
+        result = response.json().get("data")
+        valorOld = result[0].get(acountForm["field"])
+        valorNew = acountForm["value"]
+        if valorOld != valorNew:
+            acount_save_field.append(acountForm)
+    return acount_save_field
+
+
+def guardar_cambios(company_name, cuentas):
+    result_save_field = []
+    for field in cuentas:
+        response = update_fiedl_company(field, company_name)
+        if response.status_code != 200:
+            logger.error("Error HTTP update_field_company: %s %s", response.status_code, response.text)
+            continue
+        result_save_field.append(response.json().get("data"))
+    return result_save_field
+
+
+# --- Vista principal ---
 @session_required("login")
 def catalogo_cuentas(request):
-    logger.info(f"{request.session["username"]}-> Agregar / modificar compañia")
+    logger.info(f"{request.session.get('username')} -> Agregar / modificar compañía")
+
     breadcrumbs = [
-        { "label": "Organizaciones", "url": "organization:list", },
-        { "label": "Compania Detalles", "url": None, },
-        { "label": "Catalogo de cuentas", "url": None, }
+        {"label": "Organizaciones", "url": "organization:list"},
+        {"label": "Compañía Detalles", "url": None},
+        {"label": "Catálogo de cuentas", "url": None},
     ]
     context = agregar_atributos({}, "breadcrumbs", breadcrumbs)
     context = agregar_data_Tab("company_options.json", context)
-    context = agregar_atributos(context,"active_tab","acount")
+    context = agregar_atributos(context, "active_tab", "acount")
+
     if request.method == "POST":
         form = CatalogoCuentasForm(request.POST)
-
         if form.is_valid():
             datosf = form.cleaned_data
-            campos_con_valor = [k for k, v in datosf.items() if v != ""]
-            campos_to_excluir = ['abbr','company_name','currency','crear_plan_basado_en','plantilla_catalogo']
-            campos_final = [c for c in campos_con_valor if c not in campos_to_excluir]
-            strCompany_name = datosf.get("company_name")
-            acount_no_existe = []
-            acount_si_existe = []
-            acount_save_field = []
-            for acountForm in campos_final:
-                strAcountName = datosf.get(acountForm)
-                response = get_account(strAcountName)
-                if response.status_code != 200:
-                    print("Error HTTP:", response.status_code, response.text)
-                data = response.json()
-                acount = data.get("data")
-                if not acount:
-                    acount_no_existe.append({"field": acountForm,"value": strAcountName })
-                else:
-                    acount_si_existe.append({"field": acountForm,"value": strAcountName })
-            for acountForm in acount_si_existe + acount_no_existe:
-                response = get_value_field(strCompany_name,acountForm["field"])
-                if response.status_code != 200:
-                    print("Error HTTP:", response.status_code, response.text)
-                data = response.json()
-                result = data.get("data")
-                valorOld = result[0][acountForm["field"]]
-                valorNew = acountForm["value"]
-                if valorOld != valorNew :
-                    acount_save_field.append(acountForm)
-            result_save_field = []
-            print(f"acount_no_existe {acount_no_existe}")
-            print(f"acount_si_existe {acount_si_existe}")
-            print(f"acount_save_field {acount_save_field}")
-            for field in acount_save_field:
-                response = update_fiedl_company(field,strCompany_name)
-                if response.status_code != 200:
-                    print("Error HTTP:", response.status_code, response.text)
-                data = response.json()
-                result = data.get("data")
-                result_save_field.append(result)
-
-            if result_save_field:        
-                messages.success(
-                    request,
-                    f"{result_save_field}",
-                )
-            print(f"acount_no_existe {acount_no_existe}")
-            print(f"acount_si_existe {acount_si_existe}")
-            print(f"acount_save_field {acount_save_field}")
-            print(f"acount_save_field {result_save_field}")
-
-            """strAbbr = datosf.get("abbr")
-            strCompany_name = datosf.get("company_name")
-            strCurrency = datosf.get("company_name")
-
-            account_data_chart = []
-            plan = obtener_plan_acounts("account.json")
-            # Definimos las cuentas que queremos procesar
-            cuentas = [
-                ("field","default_cash_account"),
-                ("field", "default_bank_account"),
-                ("field", "default_payable_account"),
-                ("field", "default_receivable_account"),
-                ("field", "default_expense_account"),
-                ("field", "default_income_account"),
-                ("field", "default_inventory_account"),
-                ("field", "stock_adjustment_account"),
-                ("field", "stock_received_but_not_billed"),
-                ("field", "accumulated_depreciation_account"),
-                ("field", "depreciation_expense_account"),
-                ("field", "default_discount_account"),
-                ("field", "write_off_account"),
-                ("field", "unrealized_profit_loss_account"),
-                ("field", "exchange_gain_loss_account"),
-                ("field", "unrealized_exchange_gain_loss_account")
+            campos_excluir = {
+                "abbr",
+                "company_name",
+                "currency",
+                "crear_plan_basado_en",
+                "plantilla_catalogo",
+            }
+            campos_final = [
+                campo
+                for campo, valor in datosf.items()
+                if valor and campo not in campos_excluir
             ]
-            
-            for key_field, valor_field in cuentas:
-                strAcount = datosf.get(valor_field)
-                
-                if acount:
-                    acountNew = {
-                        "abbr": strAbbr,
-                        "claveField": key_field,
-                        "valorField": valor_field,
-                        "valorAccountName": strAcount,
-                        "valorCompany": strCompany_name,
-                        "valorCurrency": strCurrency,
-                    }
-                    itemAcount = procesar_acount_json(acountNew, plan)
-                    account_data_chart.append(itemAcount)"""    
 
+            company_name = datosf.get("company_name")
+            acount_no_existe, acount_si_existe = validar_cuentas(
+                campos_final,
+                datosf,
+            )
+            cuentas_validar = acount_si_existe + acount_no_existe
+            acount_save_field = comparar_valores(
+                company_name,
+                cuentas_validar,
+            )
+            result_save_field = guardar_cambios(
+                company_name,
+                acount_save_field,
+            )
 
-            """TO_DO investigar
-            cost_center - round_off_cost_center - depreciation_cost_center
-            valuation_method
-            """
-            #Funcion para persistit los cambios
-            """response = procesar_save_acounts(account_data_chart)"""
+            if result_save_field:
+                messages.success(request, f"{result_save_field}")
 
-
+            logger.info("Cuentas no existentes: %s", acount_no_existe)
+            logger.info("Cuentas existentes: %s", acount_si_existe)
+            logger.info("Cuentas a guardar: %s", acount_save_field)
+            logger.info("Resultados guardados: %s", result_save_field)
             return redirect("organization:catalogo_cuentas")
     else:
         company_name = request.session.get("companyName")
         response = get_company_by_name(company_name)
-        data = response.json()
-        company = data["data"]
-        form = CatalogoCuentasForm(
-            initial={
-                "abbr": company.get("abbr") or "",
-                "company_name": company.get("company_name") or "",
-                "currency": company.get("default_currency") or "",
-                "crear_plan_basado_en": company.get("create_chart_of_accounts_based_on") or "",
-                "plantilla_catalogo": company.get("chart_of_accounts") or "",
-                "default_cash_account": company.get("default_cash_account") or "",
-                "default_bank_account": company.get("default_bank_account") or "",
-                "default_expense_account": company.get("default_expense_account") or "",
-
-                "default_income_account": company.get("default_income_account") or "",
-                "default_receivable_account": company.get("default_receivable_account") or "",
-                "default_payable_account": company.get("default_payable_account") or "",
-                "cost_center": company.get("cost_center") or "",
-                "default_inventory_account": company.get("default_inventory_account") or "",
-                "accumulated_depreciation_account": company.get("accumulated_depreciation_account") or "",
-                "depreciation_expense_account": company.get("depreciation_expense_account") or "",
-                "stock_adjustment_account": company.get("stock_adjustment_account") or "",
-                "stock_received_but_not_billed": company.get("stock_received_but_not_billed") or "",
-                "valuation_method": company.get("valuation_method") or "",
-                "default_discount_account": company.get("default_discount_account") or "",
-                "write_off_account": company.get("write_off_account") or "",
-                "unrealized_profit_loss_account": company.get("unrealized_profit_loss_account"),
-                "exchange_gain_loss_account": company.get("exchange_gain_loss_account"),
-                "unrealized_exchange_gain_loss_account": company.get("unrealized_exchange_gain_loss_account")
-            }
-        )
+        company = response.json().get("data", {})
+        form = CatalogoCuentasForm(initial={
+            "abbr": company.get("abbr", ""),
+            "company_name": company.get("company_name", ""),
+            "currency": company.get("default_currency", ""),
+            "crear_plan_basado_en": company.get("create_chart_of_accounts_based_on", ""),
+            "plantilla_catalogo": company.get("chart_of_accounts", ""),
+            "default_cash_account": company.get("default_cash_account", ""),
+            "default_bank_account": company.get("default_bank_account", ""),
+            "default_expense_account": company.get("default_expense_account", ""),
+            "default_income_account": company.get("default_income_account", ""),
+            "default_receivable_account": company.get("default_receivable_account", ""),
+            "default_payable_account": company.get("default_payable_account", ""),
+            "cost_center": company.get("cost_center", ""),
+            "default_inventory_account": company.get("default_inventory_account", ""),
+            "accumulated_depreciation_account": company.get("accumulated_depreciation_account", ""),
+            "depreciation_expense_account": company.get("depreciation_expense_account", ""),
+            "stock_adjustment_account": company.get("stock_adjustment_account", ""),
+            "stock_received_but_not_billed": company.get("stock_received_but_not_billed", ""),
+            "valuation_method": company.get("valuation_method", ""),
+            "default_discount_account": company.get("default_discount_account", ""),
+            "write_off_account": company.get("write_off_account", ""),
+            "unrealized_profit_loss_account": company.get("unrealized_profit_loss_account", ""),
+            "exchange_gain_loss_account": company.get("exchange_gain_loss_account", ""),
+            "unrealized_exchange_gain_loss_account": company.get("unrealized_exchange_gain_loss_account", "")
+        })
         form.fields["crear_plan_basado_en"].widget.attrs["readonly"] = True
         form.fields["plantilla_catalogo"].widget.attrs["readonly"] = True
-    context = agregar_atributos(context,"form",form)
-    return render(
-        request,
-        "organization/accounts.html",
-        context
-    )
+
+    context = agregar_atributos(context, "form", form)
+    return render(request, "organization/accounts.html", context)
     
 def procesar_save_acounts(account_data_chart):
     print(f"1- account_data_chart {len(account_data_chart)}")

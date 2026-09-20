@@ -2,7 +2,6 @@ import json
 import os, requests
 from urllib import parse
 from dotenv import load_dotenv
-from config.utils import serialize_dates
 
 load_dotenv()
 
@@ -21,7 +20,6 @@ HEADERS = {
 def saveCompany(method,data):
     response = None
     url = f"{ERP_BASE_URL}/api/resource/Company"
-    data = serialize_dates(data)
     if method == "put":
         company_encoded = parse.quote(data["company_name"])  
         url += f"/{company_encoded}"
@@ -47,20 +45,20 @@ def get_value_field(company_name,field):
     return requests.get(url, headers=HEADERS, params=params)
 
 def update_fiedl_company(field, company_name):
-    
     response = get_account(field["value"])
     if response.status_code != 200:
         print("Error HTTP:", response.status_code, response.text)
     data = response.json()
     acount = data.get("data")
-    print("acount:: ",acount[0].get("name"))
-    url = f"{ERP_BASE_URL}/api/resource/Company/{company_name}"
-    payload = {
-        field["field"]: acount[0].get("name")
-    }
-    print(":::::::::::::::hola",field["field"],"->", field["value"])
-    return requests.put(url, headers=HEADERS, json=payload, timeout=30)
-
+    if acount :    
+        url = f"{ERP_BASE_URL}/api/resource/Company/{company_name}"
+        payload = {
+            field["field"]: acount[0].get("name")
+        }
+        print(":::::::::::::::hola",field["field"],"->", field["value"])
+        return requests.put(url, headers=HEADERS, json=payload, timeout=30)
+    return None
+    
 def get_company_by_name(name: str):
     url = f"{ERP_BASE_URL}/api/resource/Company/{name}"
     fields = [

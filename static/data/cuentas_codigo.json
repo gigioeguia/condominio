@@ -1,0 +1,48 @@
+            """strAbbr = datosf.get("abbr")
+            strCompany_name = datosf.get("company_name")
+            strCurrency = datosf.get("company_name")
+
+            account_data_chart = []
+            plan = obtener_plan_acounts("account.json")
+            # Definimos las cuentas que queremos procesar
+            cuentas = [
+                ("field","default_cash_account"),
+                ("field", "default_bank_account"),
+                ("field", "default_payable_account"),
+                ("field", "default_receivable_account"),
+                ("field", "default_expense_account"),
+                ("field", "default_income_account"),
+                ("field", "default_inventory_account"),
+                ("field", "stock_adjustment_account"),
+                ("field", "stock_received_but_not_billed"),
+                ("field", "accumulated_depreciation_account"),
+                ("field", "depreciation_expense_account"),
+                ("field", "default_discount_account"),
+                ("field", "write_off_account"),
+                ("field", "unrealized_profit_loss_account"),
+                ("field", "exchange_gain_loss_account"),
+                ("field", "unrealized_exchange_gain_loss_account")
+            ]
+            
+            for key_field, valor_field in cuentas:
+                strAcount = datosf.get(valor_field)
+                
+                if acount:
+                    acountNew = {
+                        "abbr": strAbbr,
+                        "claveField": key_field,
+                        "valorField": valor_field,
+                        "valorAccountName": strAcount,
+                        "valorCompany": strCompany_name,
+                        "valorCurrency": strCurrency,
+                    }
+                    itemAcount = procesar_acount_json(acountNew, plan)
+                    account_data_chart.append(itemAcount)"""    
+
+
+            """TO_DO investigar
+            cost_center - round_off_cost_center - depreciation_cost_center
+            valuation_method
+            """
+            #Funcion para persistit los cambios
+            """response = procesar_save_acounts(account_data_chart)"""

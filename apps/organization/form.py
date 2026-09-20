@@ -21,6 +21,13 @@ class OrganizationForm(forms.Form):
     
     required_css_class = "required"
     
+    action = forms.CharField(
+            label="action",
+            required=False,
+            initial=0,
+            widget=forms.HiddenInput()
+    )
+    
     company_name = forms.CharField(
         label="Nombre de la empresa",
         max_length=255,
@@ -181,7 +188,7 @@ class OrganizationForm(forms.Form):
         ),
     )
     
-    def clean(self):
+    """    def clean(self):
         cleaned_data = super().clean()
         country = cleaned_data.get("country")
         tax_id = cleaned_data.get("tax_id")
@@ -189,7 +196,7 @@ class OrganizationForm(forms.Form):
         if country == "Mexico" and not tax_id:
             raise ValidationError({"tax_id": "El RFC es obligatorio cuando el país es Mexico."})
 
-        return cleaned_data
+        return cleaned_data """
 
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
@@ -198,6 +205,7 @@ class OrganizationForm(forms.Form):
         self.helper.form_class = "row g-3"
 
         self.helper.layout = Layout(
+            Field("action"),
             Row(
                 Column("company_name", css_class="col-md-8"),
                 Column("abbr", css_class="col-md-4"),
@@ -316,6 +324,10 @@ class OrganizationForm(forms.Form):
         #self.fields[ "create_chart_of_accounts_based_on"].widget.attrs.update({
         #    "data-url": reverse("organization:get_chart_templates"),
         #})
+        
+    def clean_action(self):
+        value = self.cleaned_data.get("action")
+        return 0 if value in (None, "") else value        
         
 class OrganizationImportForm(forms.Form):
     archivo = forms.FileField(
@@ -710,68 +722,68 @@ class CatalogoCuentasForm(forms.Form):
         self.helper.form_class = "row g-3"
 
         self.helper.layout = Layout(
-    Field("abbr"),
-    Field("company_name"),
-    Field("currency"),
+            Field("abbr"),
+            Field("company_name"),
+            Field("currency"),
 
-    Accordion(
-        AccordionGroup(
-            "Catálogo de cuentas",
-            Row(
-                Column(Field("crear_plan_basado_en"), css_class="col-md-5"),
-                Column(Field("plantilla_catalogo"), css_class="col-md-5"),
-            ),
-            active=True  # siempre abierto
-        ),
-        AccordionGroup(
-            "Cuentas predeterminadas",
-            Row(
-                Column(
-                    Field("default_cash_account"),
-                    Field("default_bank_account"),
-                    Field("default_payable_account"),
-                    Field("default_receivable_account"),
-                    Field("write_off_account"),
-                    Field("unrealized_profit_loss_account"),
-                    css_class="col-md-5",
+            Accordion(
+                AccordionGroup(
+                    "Catálogo de cuentas",
+                    Row(
+                        Column(Field("crear_plan_basado_en"), css_class="col-md-5"),
+                        Column(Field("plantilla_catalogo"), css_class="col-md-5"),
+                    ),
+                    active=True  # siempre abierto
                 ),
-                Column(
-                    Field("default_expense_account"),
-                    Field("default_income_account"),
-                    Field("default_discount_account"),
-                    Field("plantilla_terminos_pago"),
-                    Field("cost_center"),
-                    Field("libro_finanzas"),
-                    css_class="col-md-5",
+                AccordionGroup(
+                    "Cuentas predeterminadas",
+                    Row(
+                        Column(
+                            Field("default_cash_account"),
+                            Field("default_bank_account"),
+                            Field("default_payable_account"),
+                            Field("default_receivable_account"),
+                            Field("write_off_account"),
+                            Field("unrealized_profit_loss_account"),
+                            css_class="col-md-5",
+                        ),
+                        Column(
+                            Field("default_expense_account"),
+                            Field("default_income_account"),
+                            Field("default_discount_account"),
+                            Field("plantilla_terminos_pago"),
+                            Field("cost_center"),
+                            Field("libro_finanzas"),
+                            css_class="col-md-5",
+                        ),
+                    ),
+                    active=True  # siempre abierto
+                ),
+                AccordionGroup(
+                    "Cuentas Almacén",
+                    Row(
+                        Column(Field("default_inventory_account"), Field("valuation_method"), css_class="col-md-5"),
+                        Column(Field("stock_adjustment_account"), Field("stock_received_but_not_billed"), css_class="col-md-5"),
+                    ),
+                    active=False  # cerrado por defecto
+                ),
+                AccordionGroup(
+                    "Cuenta de activo fijo predeterminada",
+                    Row(
+                        Column(Field("accumulated_depreciation_account"),Field("depreciation_expense_account"), css_class="col-md-5"),
+                        Column(Field("exchange_gain_loss_account"), css_class="col-md-5"),
+                    ),
+                    active=False  # cerrado por defecto
                 ),
             ),
-            active=True  # siempre abierto
-        ),
-        AccordionGroup(
-            "Cuentas Almacén",
-            Row(
-                Column(Field("default_inventory_account"), Field("valuation_method"), css_class="col-md-5"),
-                Column(Field("stock_adjustment_account"), Field("stock_received_but_not_billed"), css_class="col-md-5"),
-            ),
-            active=False  # cerrado por defecto
-        ),
-        AccordionGroup(
-            "Cuenta de activo fijo predeterminada",
-            Row(
-                Column(Field("accumulated_depreciation_account"),Field("depreciation_expense_account"), css_class="col-md-5"),
-                Column(Field("exchange_gain_loss_account"), css_class="col-md-5"),
-            ),
-            active=False  # cerrado por defecto
-        ),
-    ),
 
-    HTML(
-        """
-        <div class="col-12 mt-3">
-            <button type="submit" class="btn btn-primary">
-                Guardar
-            </button>
-        </div>
-        """
-    ),
-)
+            HTML(
+                """
+                <div class="col-12 mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        Guardar
+                    </button>
+                </div>
+                """
+            ),
+        )
