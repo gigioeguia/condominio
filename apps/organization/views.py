@@ -16,7 +16,8 @@ from .table import OrganizationTable
 from .form import ImportJsonForm, OrganizationForm, OrganizationImportForm, OrganizationFilterForm, CatalogoCuentasForm
 from config.utils import agregar_atributos, getRequestException, agregar_data_Tab, obtener_mensaje_erpnext, procesar_acount_json, \
     obtener_plan_acounts
-from .services import get_organizations, search_resource, get_chart_acount_for_country, get_company_by_name, saveCompany, get_imprimir
+from .services import get_organizations, search_resource, get_chart_acount_for_country, get_company_by_name, saveCompany, get_imprimir, \
+    get_account, get_value_field, update_fiedl_company 
 from config.decorators import session_required
 
 logger = logging.getLogger(__name__)
@@ -393,7 +394,57 @@ def catalogo_cuentas(request):
 
         if form.is_valid():
             datosf = form.cleaned_data
-            strAbbr = datosf.get("abbr")
+            campos_con_valor = [k for k, v in datosf.items() if v != ""]
+            campos_to_excluir = ['abbr','company_name','currency','crear_plan_basado_en','plantilla_catalogo']
+            campos_final = [c for c in campos_con_valor if c not in campos_to_excluir]
+            strCompany_name = datosf.get("company_name")
+            acount_no_existe = []
+            acount_si_existe = []
+            acount_save_field = []
+            for acountForm in campos_final:
+                strAcountName = datosf.get(acountForm)
+                response = get_account(strAcountName)
+                if response.status_code != 200:
+                    print("Error HTTP:", response.status_code, response.text)
+                data = response.json()
+                acount = data.get("data")
+                if not acount:
+                    acount_no_existe.append({"field": acountForm,"value": strAcountName })
+                else:
+                    acount_si_existe.append({"field": acountForm,"value": strAcountName })
+            for acountForm in acount_si_existe + acount_no_existe:
+                response = get_value_field(strCompany_name,acountForm["field"])
+                if response.status_code != 200:
+                    print("Error HTTP:", response.status_code, response.text)
+                data = response.json()
+                result = data.get("data")
+                valorOld = result[0][acountForm["field"]]
+                valorNew = acountForm["value"]
+                if valorOld != valorNew :
+                    acount_save_field.append(acountForm)
+            result_save_field = []
+            print(f"acount_no_existe {acount_no_existe}")
+            print(f"acount_si_existe {acount_si_existe}")
+            print(f"acount_save_field {acount_save_field}")
+            for field in acount_save_field:
+                response = update_fiedl_company(field,strCompany_name)
+                if response.status_code != 200:
+                    print("Error HTTP:", response.status_code, response.text)
+                data = response.json()
+                result = data.get("data")
+                result_save_field.append(result)
+
+            if result_save_field:        
+                messages.success(
+                    request,
+                    f"{result_save_field}",
+                )
+            print(f"acount_no_existe {acount_no_existe}")
+            print(f"acount_si_existe {acount_si_existe}")
+            print(f"acount_save_field {acount_save_field}")
+            print(f"acount_save_field {result_save_field}")
+
+            """strAbbr = datosf.get("abbr")
             strCompany_name = datosf.get("company_name")
             strCurrency = datosf.get("company_name")
 
@@ -414,12 +465,15 @@ def catalogo_cuentas(request):
                 ("field", "depreciation_expense_account"),
                 ("field", "default_discount_account"),
                 ("field", "write_off_account"),
-                ("field", "unrealized_profit_loss_account")
+                ("field", "unrealized_profit_loss_account"),
+                ("field", "exchange_gain_loss_account"),
+                ("field", "unrealized_exchange_gain_loss_account")
             ]
             
             for key_field, valor_field in cuentas:
                 strAcount = datosf.get(valor_field)
-                if strAcount:  # solo procesar si hay valor
+                
+                if acount:
                     acountNew = {
                         "abbr": strAbbr,
                         "claveField": key_field,
@@ -429,21 +483,17 @@ def catalogo_cuentas(request):
                         "valorCurrency": strCurrency,
                     }
                     itemAcount = procesar_acount_json(acountNew, plan)
-                    account_data_chart.append(itemAcount)
-            
+                    account_data_chart.append(itemAcount)"""    
+
+
             """TO_DO investigar
             cost_center - round_off_cost_center - depreciation_cost_center
             valuation_method
             """
-              
-            # Guardar los datos en el modelo correspondiente
-            # Por ejemplo:
-            # CatalogoConfiguracion.objects.create(**datos)
+            #Funcion para persistit los cambios
+            """response = procesar_save_acounts(account_data_chart)"""
 
-            messages.success(
-                request,
-                "La configuración del catálogo se guardó correctamente.",
-            )
+
             return redirect("organization:catalogo_cuentas")
     else:
         company_name = request.session.get("companyName")
@@ -460,7 +510,7 @@ def catalogo_cuentas(request):
                 "default_cash_account": company.get("default_cash_account") or "",
                 "default_bank_account": company.get("default_bank_account") or "",
                 "default_expense_account": company.get("default_expense_account") or "",
-                
+
                 "default_income_account": company.get("default_income_account") or "",
                 "default_receivable_account": company.get("default_receivable_account") or "",
                 "default_payable_account": company.get("default_payable_account") or "",
@@ -473,7 +523,9 @@ def catalogo_cuentas(request):
                 "valuation_method": company.get("valuation_method") or "",
                 "default_discount_account": company.get("default_discount_account") or "",
                 "write_off_account": company.get("write_off_account") or "",
-                "unrealized_profit_loss_account": company.get("unrealized_profit_loss_account")
+                "unrealized_profit_loss_account": company.get("unrealized_profit_loss_account"),
+                "exchange_gain_loss_account": company.get("exchange_gain_loss_account"),
+                "unrealized_exchange_gain_loss_account": company.get("unrealized_exchange_gain_loss_account")
             }
         )
         form.fields["crear_plan_basado_en"].widget.attrs["readonly"] = True
@@ -484,6 +536,14 @@ def catalogo_cuentas(request):
         "organization/accounts.html",
         context
     )
+    
+def procesar_save_acounts(account_data_chart):
+    print(f"1- account_data_chart {len(account_data_chart)}")
+    account_data_chart = [a for a in account_data_chart if a is not None]
+    print(f"2- account_data_chart {len(account_data_chart)}")    
+    print(f"account_data_chart {account_data_chart}")
+    return None
+      
 
 def company_cuentas(request):
     company_name = request.session.get('companyName')

@@ -1,53 +1,27 @@
-[
-    {
-        "account_name": "POLIZA DE SEGURO POR PAGAR - CTEST",
-        "parent_account": "DOCUMENTOS Y CUENTAS POR PAGAR - CTEST",
-        "parents_account": [
-            "PASIVO A CORTO PLAZO - CTEST",
-            "PASIVO - CTEST"
-        ],
-        "account_type": "Payable",
-        "company": "CompanyTest",
-        "currency": "CompanyTest",
-        "is_group": 0,
-        "field": "default_payable_account"
-    },
-    {
-        "account_name": "COSTO DE VENTAS - CTEST",
-        "parent_account": "COSTO - CTEST",
-        "parents_account": [
-            "COSTO - CTEST"
-        ],
-        "account_type": "Expense",
-        "company": "CompanyTest",
-        "currency": "CompanyTest",
-        "is_group": 0,
-        "field": "default_expense_account"
-    },
-    {
-        "account_name": "VENTAS EXPORTACION - CTEST",
-        "parent_account": "VENTAS - CTEST",
-        "parents_account": [
-            "INGRESOS - CTEST"
-        ],
-        "account_type": "Income",
-        "company": "CompanyTest",
-        "currency": "CompanyTest",
-        "is_group": 0,
-        "field": "default_income_account"
-    },
-    {
-        "account_name": "CAJA PRINCIPAL - CTEST",
-        "parent_account": "CAJAS - CTEST",
-        "parents_account": [
-            "EFECTIVO Y VALORES NEGOCIABLES - CTEST",
-            "ACTIVO CIRCULANTE - CTEST",
-            "ACTIVO - CTEST"
-        ],
-        "account_type": "Cash",
-        "company": "CompanyTest",
-        "currency": "CompanyTest",
-        "is_group": 0,
-        "field": "default_cash_account"
-    }
-]
+datosf {
+    "abbr": "CTEST2",
+    "company_name": "CompanyTest2",
+    "currency": "MXN",
+    "crear_plan_basado_en": "Standard Template",
+    "plantilla_catalogo": "Standard",
+    "default_cash_account": "Efectivo - CTEST2",
+    "default_bank_account": "",
+    "default_expense_account": "Costo sobre ventas - CTEST2",
+    "default_payable_account": "Acreedores - CTEST2",
+    "default_income_account": "Ventas - CTEST2",
+    "default_receivable_account": "DEUDORES VARIOS - CTEST2",
+    "default_discount_account": "",
+    "plantilla_terminos_pago": "",
+    "write_off_account": "Desajuste - CTEST2",
+    "cost_center": "Principal - CTEST2",
+    "unrealized_profit_loss_account": "",
+    "libro_finanzas": "",
+    "default_inventory_account": "Stock en mano - CTEST2",
+    "valuation_method": "FIFO",
+    "stock_adjustment_account": "Ajuste de existencias - CTEST2",
+    "accumulated_depreciation_account": "Depreciación acumulada - CTEST2",
+    "depreciation_expense_account": "DEPRECIACIONES - CTEST2",
+    "stock_received_but_not_billed": "Inventario Recibido pero no Facturado - CTEST2",
+    "exchange_gain_loss_account": "Ganancia/Pérdida en Cambio - CTEST2",
+    "unrealized_exchange_gain_loss_account": ""
+}

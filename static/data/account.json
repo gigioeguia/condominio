@@ -15,8 +15,9 @@
     },
     {
         "account_name": "default_bank_account",
-        "parent_account": "EFECTIVO Y VALORES NEGOCIABLES - abbr",
+        "parent_account": "BANCOS E INTITUCIONES FINANCIERAS - abbr",
         "parents_account": [
+            "EFECTIVO Y VALORES NEGOCIABLES - ABBR",
             "ACTIVO CIRCULANTE - abbr",
             "ACTIVO - abbr"
             ], 
@@ -175,6 +176,19 @@
         "currency": "default_currency",
         "is_group": 0,
         "field": "write_off_account"
+    },
+    {
+        "account_name": "exchange_gain_loss_account",
+        "parent_account": "GASTOS DE DISTRIBUCION - abbr",
+        "parents_account": [
+            "GASTOS COMERCIALIZACION - abbr",
+            "GASTOS OPERATIVOS - abbr",
+            "GASTOS - abbr"
+        ], 
+        "account_type": "",
+        "company": "company_name",
+        "currency": "default_currency",
+        "is_group": 0,
+        "field": "exchange_gain_loss_account"
     }
-    
 ]    

@@ -3,6 +3,7 @@ import re
 from django import forms
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
+from crispy_forms.bootstrap import Accordion, AccordionGroup
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import (
     Field,
@@ -592,43 +593,50 @@ class CatalogoCuentasForm(forms.Form):
         required=False,
     )
 
+    # - default_cash_account
     default_cash_account = forms.CharField(
-            label="Cuenta de efectivo por defecto - default_cash_account",
+            label="Cuenta de efectivo por defecto",
             required=False,
     )
 
+    # - default_bank_account
     default_bank_account = forms.CharField(
-        label="Cuenta bancaria por defecto - default_bank_account",
+        label="Cuenta bancaria por defecto",
         required=False,
     )
 
+    # - default_expense_account
     default_expense_account = forms.CharField(
-        label="Cuenta de costos (venta) por defecto - default_expense_account",
+        label="Cuenta de costos (venta) por defecto",
         required=False,
     )
-
+    
+    # - default_payable_account
     default_payable_account = forms.CharField(
-        label="Cuenta de efectivo por defecto - default_payable_account",
+        label="Cuenta de efectivo por defecto",
         required=False,
     )
 
+    # - default_income_account
     default_income_account = forms.CharField(
-        label="Cuenta de ingresos por defecto - default_income_account",
+        label="Cuenta de ingresos por defecto",
         required=False,
     )
 
+    # - default_receivable_account
     default_receivable_account = forms.CharField(
-        label="Cuenta por cobrar por defecto - default_receivable_account",
+        label="Cuenta por cobrar por defecto",
         required=False,
     )
-
+    
+    #  - default_discount_account
     default_discount_account = forms.CharField(
-        label="Cuenta de descuento por pago predeterminado - default_discount_account",
+        label="Cuenta de descuento por pago predeterminado",
         required=False,
     )
 
     plantilla_terminos_pago = forms.CharField(
-        label="Plantilla de Términos de Pago Predeterminados",
+        label="Plantilla de Términos de Pago Predeterminados - ?",
         required=False,
     )
 
@@ -637,48 +645,62 @@ class CatalogoCuentasForm(forms.Form):
         required=False,
     )
 
+    # - cost_center - round_off_cost_center - depreciation_cost_center
     cost_center = forms.CharField(
-        label="Centro de costos por defecto - cost_center - round_off_cost_center - depreciation_cost_center",
+        label="Centro de costos por defecto - ?",
         required=False,
     )
-
+    # - unrealized_profit_loss_account
     unrealized_profit_loss_account = forms.CharField(
-        label="Cuenta de Pérdidas/Ganancias no realizada - unrealized_profit_loss_account",
+        label="Cuenta de Pérdidas/Ganancias no realizada",
         required=False,
     )
 
     libro_finanzas = forms.CharField(
-        label="Libro de Finanzas Predeterminado",
+        label="Libro de Finanzas Predeterminado - ?",
         required=False,
     )
-    
+    # - default_inventory_account    
     default_inventory_account = forms.CharField(
-        label="Cuenta inventarios por defecto - default_inventory_account",
+        label="Cuenta inventarios por defecto",
         required=False,
     )
-    
+    # - valuation_method
     valuation_method = forms.CharField(
-        label="Método de Valoración de Stock predeterminado - valuation_method",
+        label="Método de Valoración de Stock predeterminado",
         required=False,
     )
-    
+    #  - stock_adjustment_account
     stock_adjustment_account = forms.CharField(
-        label="Cuenta de ajuste de existencias - stock_adjustment_account",
+        label="Cuenta de ajuste de existencias",
+        required=False,
+    )
+    #- accumulated_depreciation_account
+    accumulated_depreciation_account = forms.CharField(
+        label="Cuenta de depreciación acumulada",
+        required=False,
+    )
+    # - depreciation_expense_account
+    depreciation_expense_account = forms.CharField(
+        label="Cuenta de gastos de depreciación",
+        required=False,
+    )
+    # - stock_received_but_not_billed
+    stock_received_but_not_billed= forms.CharField(
+        label="Inventario Recibido pero no Facturado",
         required=False,
     )
     
-    accumulated_depreciation_account = forms.CharField(
-        label="Cuenta de depreciación acumulada - accumulated_depreciation_account",
+    exchange_gain_loss_account= forms.CharField(
+        label="Cuenta de ganancias/pérdidas por enajenación de activos fijos",
         required=False,
     )
-    depreciation_expense_account = forms.CharField(
-        label="Cuenta de gastos de depreciación - depreciation_expense_account",
+    
+    unrealized_exchange_gain_loss_account= forms.CharField(
+        label="Cuenta de Ganancia / Pérdida de Canje no Realizada",
         required=False,
     )
-    stock_received_but_not_billed= forms.CharField(
-        label="Inventario Recibido pero no Facturado - stock_received_but_not_billed",
-        required=False,
-    )
+    
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -688,37 +710,21 @@ class CatalogoCuentasForm(forms.Form):
         self.helper.form_class = "row g-3"
 
         self.helper.layout = Layout(
-            Field("abbr"),
-            Field("company_name"),
-            Field("currency"),
-            HTML(
-                """
-                <div class="col-12">
-                    <h6 class="mb-3">Catálogo de cuentas</h6>
-                </div>
-                """
-            ),
+    Field("abbr"),
+    Field("company_name"),
+    Field("currency"),
 
+    Accordion(
+        AccordionGroup(
+            "Catálogo de cuentas",
             Row(
-                Column(
-                    Field("crear_plan_basado_en"),
-                    css_class="col-md-5",
-                ),
-                Column(
-                    Field("plantilla_catalogo"),
-                    css_class="col-md-5",
-                ),
+                Column(Field("crear_plan_basado_en"), css_class="col-md-5"),
+                Column(Field("plantilla_catalogo"), css_class="col-md-5"),
             ),
-
-            HTML(
-                """
-                <hr class="mt-2 mb-3">
-                <div class="col-12">
-                    <h6 class="mb-3">Cuentas predeterminadas</h6>
-                </div>
-                """
-            ),
-
+            active=True  # siempre abierto
+        ),
+        AccordionGroup(
+            "Cuentas predeterminadas",
             Row(
                 Column(
                     Field("default_cash_account"),
@@ -739,51 +745,33 @@ class CatalogoCuentasForm(forms.Form):
                     css_class="col-md-5",
                 ),
             ),
-            HTML(
-                """
-                <hr class="mt-2 mb-3">
-                <div class="col-12">
-                    <h6 class="mb-3">Cuentas Almacen</h6>
-                </div>
-                """
-            ),
+            active=True  # siempre abierto
+        ),
+        AccordionGroup(
+            "Cuentas Almacén",
             Row(
-                Column(
-                    Field("default_inventory_account"),
-                    Field("valuation_method"),
-                    css_class="col-md-5"
-                ),
-                Column(
-                    Field("stock_adjustment_account"),
-                    Field("stock_received_but_not_billed"),
-                    css_class="col-md-5"                    
-                )    
+                Column(Field("default_inventory_account"), Field("valuation_method"), css_class="col-md-5"),
+                Column(Field("stock_adjustment_account"), Field("stock_received_but_not_billed"), css_class="col-md-5"),
             ),
-                        HTML(
-                """
-                <hr class="mt-2 mb-3">
-                <div class="col-12">
-                    <h6 class="mb-3">Cuenta de activo fijo predeterminada</h6>
-                </div>
-                """
-            ),
+            active=False  # cerrado por defecto
+        ),
+        AccordionGroup(
+            "Cuenta de activo fijo predeterminada",
             Row(
-                Column(
-                    Field("accumulated_depreciation_account"),
-                    css_class="col-md-5"
-                ),
-                Column(
-                    Field("depreciation_expense_account"),
-                    css_class="col-md-5"                    
-                )    
+                Column(Field("accumulated_depreciation_account"),Field("depreciation_expense_account"), css_class="col-md-5"),
+                Column(Field("exchange_gain_loss_account"), css_class="col-md-5"),
             ),
-            HTML(
-                """
-                <div class="col-12 mt-3">
-                    <button type="submit" class="btn btn-primary">
-                        Guardar
-                    </button>
-                </div>
-                """
-            ),
-        )
+            active=False  # cerrado por defecto
+        ),
+    ),
+
+    HTML(
+        """
+        <div class="col-12 mt-3">
+            <button type="submit" class="btn btn-primary">
+                Guardar
+            </button>
+        </div>
+        """
+    ),
+)
