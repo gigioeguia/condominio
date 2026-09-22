@@ -25,3 +25,7 @@ input.form-control[readonly] {
     background-color: #f3f4f6 !important; /* Mismo color que bg-gray-100 */
     cursor: not-allowed !important;
 }
+
+select.form-select option[value=""] {
+    color: #999 !important; /* gris */
+}

@@ -17,7 +17,8 @@ from .form import ImportJsonForm, OrganizationForm, OrganizationImportForm, Orga
 from config.utils import agregar_atributos, getRequestException, agregar_data_Tab, obtener_mensaje_erpnext, procesar_acount_json, \
     obtener_plan_acounts, serialize_dates
 from .services import get_organizations, search_resource, get_chart_acount_for_country, get_company_by_name, saveCompany, get_imprimir, \
-    get_account, get_value_field, update_fiedl_company 
+    get_account, get_value_field, update_fiedl_company, get_acounts_type, get_acounts_root_type, get_plan_pago, get_centro_costo, \
+    get_libro_finanzas, get_report_type, get_acounts_type_and_root_type  
 from config.decorators import session_required
 
 logger = logging.getLogger(__name__)
@@ -418,104 +419,316 @@ def guardar_cambios(company_name, cuentas):
         result_save_field.append(response.json().get("data"))
     return result_save_field
 
-
 # --- Vista principal ---
+SELECT_PLACEHOLDER = ("", "Seleccione:")
+
+VALUATION_METHOD_CHOICES = [
+    ("FIFO", "FIFO"),
+    ("Moving Average", "Precio medio variable"),
+    ("LIFO", "LIFO"),
+]
+
+
+def response_data(response):
+    """
+    Obtiene la lista data de una respuesta de ERPNext.
+    """
+    try:
+        return response.json().get("data", [])
+    except (AttributeError, ValueError, TypeError):
+        logger.exception("Respuesta inválida recibida desde ERPNext")
+        return []
+
+
+def account_choices(accounts, label_key="name", value_key="name"):
+    """
+    Convierte cuentas de ERPNext al formato esperado por Django:
+
+        [(valor, etiqueta), ...]
+
+    El valor debe ser normalmente el campo `name` de ERPNext.
+    """
+    choices = [
+        (
+            account.get(value_key, ""),
+            account.get(label_key, account.get(value_key, "")),
+        )
+        for account in accounts
+        if account.get(value_key)
+    ]
+
+    return [SELECT_PLACEHOLDER] + choices
+
+
+def get_account_type_choices(account_type, company_name):
+    response = get_acounts_type(account_type, company_name)
+    return account_choices(response_data(response))
+
+
+def get_root_account_choices(root_type, company_name):
+    response = get_acounts_root_type(root_type, company_name)
+    return account_choices(response_data(response))
+
+
+def get_plan_pago_choices():
+    response = get_plan_pago()
+    plans = response_data(response)
+
+    if not plans:
+        return [
+            ("", "Solicitar plan de pago al administrador"),
+        ]
+
+    return account_choices(plans)
+
+
+def get_catalogo_choices(company_name):
+    """
+    Obtiene todas las opciones necesarias para CatalogoCuentasForm.
+    """
+
+    choices = {
+        "default_bank_account": get_account_type_choices(
+            "Bank", company_name
+        ),
+        "default_cash_account": get_account_type_choices(
+            "Cash", company_name
+        ),
+        "default_payable_account": get_account_type_choices(
+            "Payable", company_name
+        ),
+        "default_receivable_account": get_account_type_choices(
+            "Receivable", company_name
+        ),
+        "default_expense_account": get_root_account_choices(
+            "Expense", company_name
+        ),
+        "write_off_account": get_root_account_choices(
+            "Expense", company_name
+        ),
+        "unrealized_profit_loss_account": get_root_account_choices(
+            "Asset", company_name
+        ),
+        "default_income_account": get_root_account_choices(
+            "Income", company_name
+        ),
+        "default_inventory_account": get_account_type_choices(
+            "Stock", company_name
+        ),
+        "stock_adjustment_account": get_account_type_choices(
+            "Stock Adjustment", company_name
+        ),
+        "stock_received_but_not_billed": get_account_type_choices(
+            "Stock Received But Not Billed", company_name
+        ),
+        "accumulated_depreciation_account": get_account_type_choices(
+            "Accumulated Depreciation", company_name
+        ),
+        "depreciation_expense_account": get_account_type_choices(
+            "Depreciation", company_name
+        ),
+        "payment_terms": get_plan_pago_choices(),
+        "valuation_method": VALUATION_METHOD_CHOICES,
+    }
+
+    # Cuentas válidas para descuentos: Expense + Income.
+    discount_choices = (
+        choices["default_expense_account"]
+        + choices["default_income_account"]
+    )
+
+    # Eliminar duplicados conservando el orden y eliminar el placeholder
+    discount_choices = list(dict.fromkeys(discount_choices))
+    discount_choices = [
+        choice for choice in discount_choices if choice[0]
+    ]
+
+    choices["default_discount_account"] = [
+        SELECT_PLACEHOLDER,
+        *sorted(discount_choices, key=lambda choice: choice[1].lower()),
+    ]
+
+    # Centros de costo
+    response = get_centro_costo(company_name)
+    cost_centers = response_data(response)
+    choices["cost_center"] = account_choices(cost_centers)
+
+    # Libros de finanzas
+    response = get_libro_finanzas()
+    finance_books = response_data(response)
+    choices["default_finance_book"] = account_choices(finance_books)
+
+    response = get_report_type("Profit and Loss", company_name)
+    exchange_gain_loss = response_data(response)
+    choices["exchange_gain_loss_account"] = account_choices(exchange_gain_loss)
+
+    return choices
+
+
+def apply_form_choices(form, choices):
+    """
+    Asigna las opciones al formulario.
+    """
+    for field_name, field_choices in choices.items():
+        if field_name in form.fields:
+            form.fields[field_name].choices = field_choices
+
 @session_required("login")
 def catalogo_cuentas(request):
-    logger.info(f"{request.session.get('username')} -> Agregar / modificar compañía")
+    username = request.session.get("username")
+    logger.info("%s -> Agregar / modificar compañía", username)
 
     breadcrumbs = [
         {"label": "Organizaciones", "url": "organization:list"},
         {"label": "Compañía Detalles", "url": None},
         {"label": "Catálogo de cuentas", "url": None},
     ]
+
     context = agregar_atributos({}, "breadcrumbs", breadcrumbs)
     context = agregar_data_Tab("company_options.json", context)
     context = agregar_atributos(context, "active_tab", "acount")
 
-    if request.method == "POST":
-        form = CatalogoCuentasForm(request.POST)
-        if form.is_valid():
-            datosf = form.cleaned_data
-            campos_excluir = {
-                "abbr",
-                "company_name",
-                "currency",
-                "crear_plan_basado_en",
-                "plantilla_catalogo",
+    session_company_name = request.session.get("companyName", "")
+
+    response = get_company_by_name(session_company_name)
+    company = response_data(response)
+
+    # Por seguridad, si la respuesta no es un diccionario
+    if not isinstance(company, dict):
+        company = {}
+
+    company_name = company.get("company_name", "")
+
+    choices = get_catalogo_choices(company_name)
+    print(f"choices {choices}")
+    values_initial = {
+        "abbr": company.get("abbr", ""),
+        "company_name": company.get("company_name", ""),
+        "currency": company.get("default_currency", ""),
+        "crear_plan_basado_en": company.get(
+            "create_chart_of_accounts_based_on", ""
+        ),
+        "plantilla_catalogo": company.get("chart_of_accounts", ""),
+        "default_cash_account": company.get("default_cash_account", ""),
+        "default_bank_account": company.get("default_bank_account", ""),
+        "default_expense_account": company.get(
+            "default_expense_account", ""
+        ),
+        "default_income_account": company.get(
+            "default_income_account", ""
+        ),
+        "default_receivable_account": company.get(
+            "default_receivable_account", ""
+        ),
+        "default_payable_account": company.get(
+            "default_payable_account", ""
+        ),
+        "cost_center": company.get("cost_center", ""),
+        "default_inventory_account": company.get(
+            "default_inventory_account", ""
+        ),
+        "accumulated_depreciation_account": company.get(
+            "accumulated_depreciation_account", ""
+        ),
+        "depreciation_expense_account": company.get(
+            "depreciation_expense_account", ""
+        ),
+        "stock_adjustment_account": company.get(
+            "stock_adjustment_account", ""
+        ),
+        "stock_received_but_not_billed": company.get(
+            "stock_received_but_not_billed", ""
+        ),
+        "valuation_method": company.get("valuation_method", ""),
+        "default_discount_account": company.get(
+            "default_discount_account", ""
+        ),
+        "write_off_account": company.get("write_off_account", ""),
+        "unrealized_profit_loss_account": company.get(
+            "unrealized_profit_loss_account", ""
+        ),
+        "exchange_gain_loss_account": company.get(
+            "exchange_gain_loss_account", ""
+        ),
+        "unrealized_exchange_gain_loss_account": company.get(
+            "unrealized_exchange_gain_loss_account", ""
+        ),
+        "payment_terms": company.get("payment_terms", ""),
+        "default_finance_book": company.get("default_finance_book", ""),
+    }
+
+    form = CatalogoCuentasForm(
+        request.POST or None,
+        initial=values_initial,
+    )
+
+    # Muy importante: asignar choices también durante POST,
+    # antes de llamar a is_valid().
+    apply_form_choices(form, choices)
+
+    form.fields["crear_plan_basado_en"].widget.attrs["readonly"] = True
+    form.fields["plantilla_catalogo"].widget.attrs["readonly"] = True
+
+    if request.method == "POST" and form.is_valid():
+        datos_formulario = form.cleaned_data
+
+        cambios = {
+            campo: {
+                "old": form.initial.get(campo),
+                "new": valor_nuevo,
             }
-            campos_final = [
-                campo
-                for campo, valor in datosf.items()
-                if valor and campo not in campos_excluir
-            ]
+            for campo, valor_nuevo in datos_formulario.items()
+            if form.initial.get(campo) != valor_nuevo
+        }
 
-            company_name = datosf.get("company_name")
-            acount_no_existe, acount_si_existe = validar_cuentas(
-                campos_final,
-                datosf,
-            )
-            cuentas_validar = acount_si_existe + acount_no_existe
-            acount_save_field = comparar_valores(
-                company_name,
-                cuentas_validar,
-            )
-            result_save_field = guardar_cambios(
-                company_name,
-                acount_save_field,
-            )
+        logger.info("Cambios detectados: %s", cambios)
 
-            if result_save_field:
-                messages.success(request, f"{result_save_field}")
+        campos_excluir = {
+            "abbr",
+            "company_name",
+            "currency",
+            "crear_plan_basado_en",
+            "plantilla_catalogo",
+        }
 
-            logger.info("Cuentas no existentes: %s", acount_no_existe)
-            logger.info("Cuentas existentes: %s", acount_si_existe)
-            logger.info("Cuentas a guardar: %s", acount_save_field)
-            logger.info("Resultados guardados: %s", result_save_field)
-            return redirect("organization:catalogo_cuentas")
-    else:
-        company_name = request.session.get("companyName")
-        response = get_company_by_name(company_name)
-        company = response.json().get("data", {})
-        form = CatalogoCuentasForm(initial={
-            "abbr": company.get("abbr", ""),
-            "company_name": company.get("company_name", ""),
-            "currency": company.get("default_currency", ""),
-            "crear_plan_basado_en": company.get("create_chart_of_accounts_based_on", ""),
-            "plantilla_catalogo": company.get("chart_of_accounts", ""),
-            "default_cash_account": company.get("default_cash_account", ""),
-            "default_bank_account": company.get("default_bank_account", ""),
-            "default_expense_account": company.get("default_expense_account", ""),
-            "default_income_account": company.get("default_income_account", ""),
-            "default_receivable_account": company.get("default_receivable_account", ""),
-            "default_payable_account": company.get("default_payable_account", ""),
-            "cost_center": company.get("cost_center", ""),
-            "default_inventory_account": company.get("default_inventory_account", ""),
-            "accumulated_depreciation_account": company.get("accumulated_depreciation_account", ""),
-            "depreciation_expense_account": company.get("depreciation_expense_account", ""),
-            "stock_adjustment_account": company.get("stock_adjustment_account", ""),
-            "stock_received_but_not_billed": company.get("stock_received_but_not_billed", ""),
-            "valuation_method": company.get("valuation_method", ""),
-            "default_discount_account": company.get("default_discount_account", ""),
-            "write_off_account": company.get("write_off_account", ""),
-            "unrealized_profit_loss_account": company.get("unrealized_profit_loss_account", ""),
-            "exchange_gain_loss_account": company.get("exchange_gain_loss_account", ""),
-            "unrealized_exchange_gain_loss_account": company.get("unrealized_exchange_gain_loss_account", "")
-        })
-        form.fields["crear_plan_basado_en"].widget.attrs["readonly"] = True
-        form.fields["plantilla_catalogo"].widget.attrs["readonly"] = True
+        campos_finales = [
+            campo
+            for campo, valor in datos_formulario.items()
+            if valor and campo not in campos_excluir
+        ]
+
+        company_name = datos_formulario.get("company_name", "")
+
+        cuentas_no_existentes, cuentas_existentes = validar_cuentas(
+            campos_finales,
+            datos_formulario,
+        )
+
+        cuentas_validar = cuentas_existentes + cuentas_no_existentes
+
+        campos_guardar = comparar_valores(
+            company_name,
+            cuentas_validar,
+        )
+
+        resultado = guardar_cambios(
+            company_name,
+            campos_guardar,
+        )
+
+        if resultado:
+            messages.success(request, str(resultado))
+
+        return redirect("organization:catalogo_cuentas")
 
     context = agregar_atributos(context, "form", form)
-    return render(request, "organization/accounts.html", context)
-    
-def procesar_save_acounts(account_data_chart):
-    print(f"1- account_data_chart {len(account_data_chart)}")
-    account_data_chart = [a for a in account_data_chart if a is not None]
-    print(f"2- account_data_chart {len(account_data_chart)}")    
-    print(f"account_data_chart {account_data_chart}")
-    return None
-      
 
+    return render(
+        request,
+        "organization/accounts.html",
+        context,
+    )
+    
 def company_cuentas(request):
     company_name = request.session.get('companyName')
     if not company_name:

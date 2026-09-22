@@ -17,6 +17,83 @@ HEADERS = {
     "Accept": "application/json",
 }
 
+def get_acounts_type(type, company ):
+    url = f"{ERP_BASE_URL}/api/resource/Account"
+    filters = [["account_type", "=", type],["company","=",company],["is_group","=",0],["disabled","=",0]]
+    fields = ["name","account_name","account_number","company","account_currency","account_type"]
+    params = {
+        "filters": json.dumps(filters),
+        "fields": json.dumps(fields),
+        "limit_page_length": 0
+    }
+    return requests.get(url, headers=HEADERS, params=params)
+
+def get_acounts_root_type(type, company ):
+    url = f"{ERP_BASE_URL}/api/resource/Account"
+    filters = [["root_type", "=", type],["company","=",company],["is_group","=",0],["disabled","=",0]]
+    fields = ["name","account_name","account_number","company","account_currency","account_type"]
+    params = {
+        "filters": json.dumps(filters),
+        "fields": json.dumps(fields),
+        "limit_page_length": 0
+    }
+    return requests.get(url, headers=HEADERS, params=params)
+
+def get_plan_pago():
+    url= f"{ERP_BASE_URL}/api/resource/Payment Terms Template"
+    filters = [["docstatus","=",0]]
+    fields = ["name","name"]
+    params = {
+        "filters": json.dumps(filters),
+        "fields": json.dumps(fields),
+        "limit_page_length": 0
+    }
+    return requests.get(url, headers=HEADERS, params=params)
+
+def get_centro_costo(company):
+    url= f"{ERP_BASE_URL}/api/resource/Cost Center"
+    filters = [["is_group","=",0],["disabled","=",0],["company","=",company]]
+    fields=["name"]
+    params = {
+        "filters": json.dumps(filters),
+        "fields": json.dumps(fields),
+        "limit_page_length": 0
+    }
+    return requests.get(url, headers=HEADERS, params=params)   
+
+def get_libro_finanzas():
+    url= f"{ERP_BASE_URL}/api/resource/Finance Book"
+    filters = [["docstatus","=",0]]
+    fields=["name"]
+    params = {
+        "filters": json.dumps(filters),
+        "fields": json.dumps(fields),
+        "limit_page_length": 0
+    }
+    return requests.get(url, headers=HEADERS, params=params)
+
+def get_report_type(report_type,company):
+    url = f"{ERP_BASE_URL}/api/resource/Account"
+    filters = [["report_type", "=", report_type],["company","=",company],["is_group","=",0],["disabled","=",0]]
+    fields = ["name","account_name","account_number","company","account_currency","account_type"]
+    params = {
+        "filters": json.dumps(filters),
+        "fields": json.dumps(fields),
+        "limit_page_length": 0
+    }
+    return requests.get(url, headers=HEADERS, params=params)    
+       
+def get_acounts_type_and_root_type(types,company):
+    url = f"{ERP_BASE_URL}/api/resource/Account"
+    filters = [["account_type", "=", types[0]], ["root_type","=",types[1]],["company","=",company],["is_group","=",0],["disabled","=",0]]
+    fields = ["name","account_name","account_number","company","account_currency","account_type"]
+    params = {
+        "filters": json.dumps(filters),
+        "fields": json.dumps(fields),
+        "limit_page_length": 0
+    }
+    return requests.get(url, headers=HEADERS, params=params)
+
 def saveCompany(method,data):
     response = None
     url = f"{ERP_BASE_URL}/api/resource/Company"
@@ -55,7 +132,6 @@ def update_fiedl_company(field, company_name):
         payload = {
             field["field"]: acount[0].get("name")
         }
-        print(":::::::::::::::hola",field["field"],"->", field["value"])
         return requests.put(url, headers=HEADERS, json=payload, timeout=30)
     return None
     
