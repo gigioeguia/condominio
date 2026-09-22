@@ -600,7 +600,6 @@ def catalogo_cuentas(request):
     company_name = company.get("company_name", "")
 
     choices = get_catalogo_choices(company_name)
-    print(f"choices {choices}")
     values_initial = {
         "abbr": company.get("abbr", ""),
         "company_name": company.get("company_name", ""),
