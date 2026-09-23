@@ -237,3 +237,19 @@ def get_imprimir(company: str):
             params=params,
             timeout=15,
         )
+    
+def get_email_account(company):
+    url = f"{ERP_BASE_URL}/api/resource/Email Account"
+    filters = [["company","=",company],["docstatus","=",0]]
+    fields = ["name","docstatus","email_id","company","email_account_name","enable_incoming","enable_outgoing"]
+    params = {
+        "filters": json.dumps(filters),
+        "fields": json.dumps(fields),
+        "limit_page_length": 0
+    }
+    return requests.get(url, headers=HEADERS, params=params)
+
+def save_email(payload):
+    url = (f"{ERP_BASE_URL}/api/resource/Email Account" )
+    return requests.post(url, headers=HEADERS, json=payload, timeout=30, allow_redirects=False,)
+    

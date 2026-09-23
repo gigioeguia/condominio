@@ -19,7 +19,7 @@
     },
     {
       "name": "Email",
-      "url": "organization:import_json",
+      "url": "organization:company_email",
       "class": "btn-success",
       "type": "email",
       "id": "id_tab_email",

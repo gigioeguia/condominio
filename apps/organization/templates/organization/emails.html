@@ -1,0 +1,18 @@
+{% extends "sections/tab.html" %}
+{% load render_table from django_tables2 %}
+{% load static %}
+{% block import_content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-end align-items-center mb-3">
+
+        <a
+            href="{% url 'organization:email_create_update' %}"
+            class="btn btn-primary"
+        >
+            <i class="bi bi-plus-lg"></i>
+            Nueva cuenta
+        </a>
+    </div>
+    {% render_table table %}
+</div>
+{% endblock %}

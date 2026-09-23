@@ -12,13 +12,13 @@ from django.shortcuts import render, redirect
 from django.views.decorators.http import require_GET
 from django_tables2 import RequestConfig
 from django_tables2.export import TableExport
-from .table import OrganizationTable
-from .form import ImportJsonForm, OrganizationForm, OrganizationImportForm, OrganizationFilterForm, CatalogoCuentasForm
+from .table import EmailAccountTable, OrganizationTable
+from .form import EmailAccountForm, ImportJsonForm, OrganizationForm, OrganizationImportForm, OrganizationFilterForm, CatalogoCuentasForm
 from config.utils import agregar_atributos, getRequestException, agregar_data_Tab, obtener_mensaje_erpnext, procesar_acount_json, \
     obtener_plan_acounts, serialize_dates
 from .services import get_organizations, search_resource, get_chart_acount_for_country, get_company_by_name, saveCompany, get_imprimir, \
     get_account, get_value_field, update_fiedl_company, get_acounts_type, get_acounts_root_type, get_plan_pago, get_centro_costo, \
-    get_libro_finanzas, get_report_type, get_acounts_type_and_root_type  
+    get_libro_finanzas, get_report_type, get_email_account, save_email, get_acounts_type_and_root_type  
 from config.decorators import session_required
 
 logger = logging.getLogger(__name__)
@@ -393,7 +393,7 @@ def validar_cuentas(campos_final, datosf):
         target_list.append({"field": campo, "value": strAcountName})
     return acount_no_existe, acount_si_existe
 
-
+@session_required("login") 
 def comparar_valores(company_name, cuentas):
     acount_save_field = []
     for acountForm in cuentas:
@@ -408,7 +408,7 @@ def comparar_valores(company_name, cuentas):
             acount_save_field.append(acountForm)
     return acount_save_field
 
-
+@session_required("login") 
 def guardar_cambios(company_name, cuentas):
     result_save_field = []
     for field in cuentas:
@@ -428,7 +428,6 @@ VALUATION_METHOD_CHOICES = [
     ("LIFO", "LIFO"),
 ]
 
-
 def response_data(response):
     """
     Obtiene la lista data de una respuesta de ERPNext.
@@ -438,7 +437,6 @@ def response_data(response):
     except (AttributeError, ValueError, TypeError):
         logger.exception("Respuesta inválida recibida desde ERPNext")
         return []
-
 
 def account_choices(accounts, label_key="name", value_key="name"):
     """
@@ -459,16 +457,13 @@ def account_choices(accounts, label_key="name", value_key="name"):
 
     return [SELECT_PLACEHOLDER] + choices
 
-
 def get_account_type_choices(account_type, company_name):
     response = get_acounts_type(account_type, company_name)
     return account_choices(response_data(response))
 
-
 def get_root_account_choices(root_type, company_name):
     response = get_acounts_root_type(root_type, company_name)
     return account_choices(response_data(response))
-
 
 def get_plan_pago_choices():
     response = get_plan_pago()
@@ -480,7 +475,6 @@ def get_plan_pago_choices():
         ]
 
     return account_choices(plans)
-
 
 def get_catalogo_choices(company_name):
     """
@@ -564,7 +558,6 @@ def get_catalogo_choices(company_name):
 
     return choices
 
-
 def apply_form_choices(form, choices):
     """
     Asigna las opciones al formulario.
@@ -573,7 +566,7 @@ def apply_form_choices(form, choices):
         if field_name in form.fields:
             form.fields[field_name].choices = field_choices
 
-@session_required("login")
+@session_required("login") 
 def catalogo_cuentas(request):
     username = request.session.get("username")
     logger.info("%s -> Agregar / modificar compañía", username)
@@ -727,7 +720,8 @@ def catalogo_cuentas(request):
         "organization/accounts.html",
         context,
     )
-    
+
+@session_required("login")     
 def company_cuentas(request):
     company_name = request.session.get('companyName')
     if not company_name:
@@ -766,6 +760,7 @@ def imprimir(request, name):
         logger.exception(f"Error generando PDF de {name}: {e}")
         return HttpResponse("Error interno generando el documento.", status=500, content_type="text/plain")
 
+@session_required("login") 
 def procesar_resultado_empresa(request, result):
     if result.get("session_expired"):
         messages.error(
@@ -787,4 +782,147 @@ def procesar_resultado_empresa(request, result):
 
     messages.success(request, mensaje)
 
-    return redirect("organization:list")    
+    return redirect("organization:list") 
+
+@session_required("login") 
+def company_email(request):
+    username = request.session.get("username", "")
+    session_company_name = request.session.get("companyName", "")
+
+    logger.info(
+        "%s -> organization_import_json",
+        username,
+    )
+
+    breadcrumbs = [
+        {
+            "label": "Organizaciones",
+            "url": "organization:list",
+        },
+        {
+            "label": "Compañía Detalles",
+            "url": None,
+        },
+        {
+            "label": "Email Organización",
+            "url": None,
+        },
+    ]
+
+    response = get_email_account(session_company_name)
+    response.raise_for_status()
+
+    response_json = response.json()
+    data = response_json.get("data", [])
+
+    logger.info("Datos recibidos: %s", data)
+
+    table = EmailAccountTable(data)
+
+    RequestConfig(
+        request,
+        paginate={"per_page": 10},
+    ).configure(table)
+
+    logger.info(
+        "Número de registros de la tabla: %s",
+        len(data),
+    )
+
+    # Prueba temporal para comprobar si se genera el HTML
+
+    context = {
+        "table": table,
+        "breadcrumbs": breadcrumbs,
+        "data": data,
+    }
+
+    return render(
+        request,
+        "organization/emails.html",
+        context,
+    )
+    
+@session_required("login") 
+def email_create_update(request):
+    session_company_name = request.session.get("companyName", "")
+    breadcrumbs = [
+        {
+            "label": "Organizaciones",
+            "url": "organization:list",
+        },
+        {
+            "label": "Compañía Detalles",
+            "url": None,
+        },
+        {
+            "label": "Email Organización",
+            "url": None,
+        },
+        {
+            "label": session_company_name,
+            "url": None
+        }
+    ]
+    context = agregar_atributos({},"breadcrumbs", breadcrumbs)
+    if request.method == "POST":
+        form = EmailAccountForm(request.POST)
+
+        if form.is_valid():
+            try:
+                payload = {
+                    "email_id": form.cleaned_data["email_id"],
+                    "service": form.cleaned_data["service"],
+                    "company": form.cleaned_data["company"],
+                    "domain": form.cleaned_data["domain"],
+                    "email_account_name": form.cleaned_data[
+                        "email_account_name"
+                    ],
+                    "enable_incoming": int(
+                        form.cleaned_data["enable_incoming"]
+                    ),
+                    "enable_outgoing": int(
+                        form.cleaned_data["enable_outgoing"]
+                    ),
+                    "authentication_method": form.cleaned_data[
+                        "authentication_method"
+                    ],
+                    "email_login": form.cleaned_data["email_login"],
+                    "password": form.cleaned_data["password"],
+                    "awaiting_password": int(
+                        form.cleaned_data["awaiting_password"]
+                    ),
+                    "use_ascii_for_password": int(
+                        form.cleaned_data["use_ascii_for_password"]
+                    ),
+                }
+
+                # Sustituye esta función por tu cliente actual de ERPNext.
+                response = save_email_account(payload)
+
+                messages.success(
+                    request,
+                    "La cuenta de correo se creó correctamente.",
+                )
+
+                return redirect("organization:company_email")
+
+            except Exception as exc:
+                form.add_error(
+                    None,
+                    f"No fue posible crear la cuenta: {exc}",
+                )
+    else:
+        form = EmailAccountForm()
+    context = agregar_atributos(context,"form",form)
+    return render(
+        request,
+        "organization/email_form.html",
+        context
+    )  
+
+def save_email_account(payload):
+    response = save_email(payload)
+    response.raise_for_status()
+    return response.json()
+         
