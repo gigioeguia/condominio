@@ -86,6 +86,67 @@
     }
   });
 </script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const spinnerButtons = document.querySelectorAll(".btnSpiner");
+
+    spinnerButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+            // Evitar dobles clics
+            if (button.dataset.loading === "true") {
+                return;
+            }
+
+            button.dataset.loading = "true";
+            button.classList.add("disabled");
+            button.setAttribute("aria-disabled", "true");
+
+            const icon = button.querySelector("i");
+            const spinner = button.querySelector(".spinner-border");
+
+            if (icon) {
+                icon.classList.add("d-none");
+            }
+
+            if (spinner) {
+                spinner.classList.remove("d-none");
+            }
+
+            // Las exportaciones no cambian de página.
+            // Restablecemos el botón después de iniciar la descarga.
+            const href = button.getAttribute("href") || "";
+
+            if (href.includes("_export=xlsx") || href.includes("_export=csv")) {
+                setTimeout(function () {
+                    resetSpinner(button);
+                }, 1500);
+            }
+        });
+    });
+
+    // Restablece el estado al regresar con los botones Atrás/Adelante
+    window.addEventListener("pageshow", function () {
+        spinnerButtons.forEach(resetSpinner);
+    });
+
+    function resetSpinner(button) {
+        button.dataset.loading = "false";
+        button.classList.remove("disabled");
+        button.removeAttribute("aria-disabled");
+
+        const icon = button.querySelector("i");
+        const spinner = button.querySelector(".spinner-border");
+
+        if (icon) {
+            icon.classList.remove("d-none");
+        }
+
+        if (spinner) {
+            spinner.classList.add("d-none");
+        }
+    }
+});
+</script>
 
 {% render_table table %}
 {% endblock %}

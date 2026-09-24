@@ -94,32 +94,15 @@ def get_acounts_type_and_root_type(types,company):
     }
     return requests.get(url, headers=HEADERS, params=params)
 
-def saveCompany(method,data):
-    response = None
-    url = f"{ERP_BASE_URL}/api/resource/Company"
-    if method == "put":
-        company_encoded = parse.quote(data["company_name"])  
-        url += f"/{company_encoded}"
-        response = requests.put(url, headers=HEADERS, json=data, timeout=30,)
-    elif method == "post":
-        response = requests.post(url, headers=HEADERS, json=data, timeout=30, allow_redirects=False,)
-    elif method == "delete":
-        company_encoded = parse.quote(data["company_name"])
-        url += f"/{company_encoded}"
-        response = requests.delete(url, headers=HEADERS, json=data, timeout=30)    
-    else:
-        raise ValueError(f"Método {method} no soportado")    
-    return response
-
-def get_value_field(company_name,field):
-    url = f"{ERP_BASE_URL}/api/resource/Company"
-    filters = [["name", "=", company_name]]
-    fields = [f"{field}"]
+def get_account(nameCuenta):
+    url = f"{ERP_BASE_URL}/api/resource/Account"
+    filters = [["account_name", "=", nameCuenta]]
+    fields = ["name", "account_name", "account_number", "account_type", "root_type", "company", "parent_account"]
     params = {
         "filters": json.dumps(filters),
         "fields": json.dumps(fields)
     }
-    return requests.get(url, headers=HEADERS, params=params)
+    return requests.get(url, headers=HEADERS, params=params, timeout=30)
 
 def update_fiedl_company(field, company_name):
     response = get_account(field["value"])
@@ -134,122 +117,13 @@ def update_fiedl_company(field, company_name):
         }
         return requests.put(url, headers=HEADERS, json=payload, timeout=30)
     return None
-    
-def get_company_by_name(name: str):
-    url = f"{ERP_BASE_URL}/api/resource/Company/{name}"
-    fields = [
-            "name",
-            "abbr",
-            "default_currency",
-            "tax_id",
-            "country",
-            "phone_no",
-            "email",
-            "website",
-            "date_of_establishment",
-            "domain"
-        ]
-    params = {
-            "fields": json.dumps(fields)
-        }
-    return requests.get(url, headers=HEADERS, params=params, timeout=30)
 
-def get_account(nameCuenta):
-    url = f"{ERP_BASE_URL}/api/resource/Account"
-    filters = [["account_name", "=", nameCuenta]]
-    fields = ["name", "account_name", "account_number", "account_type", "root_type", "company", "parent_account"]
-    params = {
-        "filters": json.dumps(filters),
-        "fields": json.dumps(fields)
-    }
-    return requests.get(url, headers=HEADERS, params=params, timeout=30)
-
-def get_organizations():
+def get_value_field(company_name,field):
     url = f"{ERP_BASE_URL}/api/resource/Company"
-    fields = [
-        "name",
-        "abbr",
-        "default_currency",
-        "tax_id",
-        "country",
-        "phone_no",
-        "email",
-        "website",
-        "date_of_establishment"
-    ]
-
-    params = {
-        "fields": json.dumps(fields)
-    }
-    return requests.get(url, headers=HEADERS, params=params, timeout=15 )
-
-def get_chart_acount_for_country(request,country):
-    url = (
-        f"{ERP_BASE_URL}/api/method/"
-        "erpnext.accounts.doctype.account.chart_of_accounts."
-        "chart_of_accounts.get_charts_for_country"
-    )
-    params = {
-        "country": country,
-        "with_standard": 1,
-    }
-    return requests.get(
-        url,
-        headers=HEADERS,
-        params=params,
-        timeout=30
-    )
-
-def search_resource(request, resource, fields):
-    
-    search = request.GET.get("term", "").strip()
-
-    params = {
-        "fields": json.dumps(fields),
-        "limit_page_length": 0,
-        "order_by": "name asc",
-    }
-
-    if search:
-        filters = [[resource, "name", "like", f"%{search}%"]]
-        params["filters"] = json.dumps(filters)
-
-    url = f"{ERP_BASE_URL}/api/resource/{resource}"
-
-    return requests.get(
-        url,
-        headers=HEADERS,
-        params=params,
-        timeout=15,
-    )
-    
-def get_imprimir(company: str):
-    url = f"{ERP_BASE_URL}/api/method/frappe.utils.print_format.download_pdf"
-    params = {
-        "doctype": "Company",
-        "name": company,
-        "format": "Standard",
-        "no_letterhead": 0
-    }
-    return requests.get(
-            url,
-            headers=HEADERS,
-            params=params,
-            timeout=15,
-        )
-    
-def get_email_account(company):
-    url = f"{ERP_BASE_URL}/api/resource/Email Account"
-    filters = [["company","=",company],["docstatus","=",0]]
-    fields = ["name","docstatus","email_id","company","email_account_name","enable_incoming","enable_outgoing"]
+    filters = [["name", "=", company_name]]
+    fields = [f"{field}"]
     params = {
         "filters": json.dumps(filters),
-        "fields": json.dumps(fields),
-        "limit_page_length": 0
+        "fields": json.dumps(fields)
     }
     return requests.get(url, headers=HEADERS, params=params)
-
-def save_email(payload):
-    url = (f"{ERP_BASE_URL}/api/resource/Email Account" )
-    return requests.post(url, headers=HEADERS, json=payload, timeout=30, allow_redirects=False,)
-    
