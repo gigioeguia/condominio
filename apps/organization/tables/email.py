@@ -8,12 +8,8 @@ class ActionsColumn(tables.Column):
     def render(self, value, record):
         name = record.get("name")
 
-        detail_url = reverse(
-            "organization:email_account_detail",
-            kwargs={"name": name},
-        )
         edit_url = reverse(
-            "organization:email_account_edit",
+            "organization:email_create_update",
             kwargs={"name": name},
         )
         delete_url = reverse(
@@ -24,18 +20,14 @@ class ActionsColumn(tables.Column):
         return format_html(
             """
             <div class="btn-group btn-group-sm" role="group">
-                <a href="{}" class="btn btn-info">
-                    Detalle
+                <a href="{}" class="btn btn-link">
+                    <i class="bi bi-pencil-square" aria-hidden="true"></i>
                 </a>
-                <a href="{}" class="btn btn-warning">
-                    Editar
-                </a>
-                <a href="{}" class="btn btn-danger">
-                    Eliminar
+                <a href="{}" class="btn btn-link">
+                    <i class="bi bi-trash" aria-hidden="true"></i>
                 </a>
             </div>
             """,
-            detail_url,
             edit_url,
             delete_url,
         )

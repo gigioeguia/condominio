@@ -13,7 +13,7 @@ from .services import login_user, get_logout, get_logged_user
 from .forms import LoginForm
 from .user import ERPUser
 from config.decorators import session_required
-from config.utils import agregar_atributos
+from config.utils import add_properties
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ def base_view(request):
     breadcrumbs = [
             { "label": "Home", "url": None, }
         ]
-    context = agregar_atributos({},"breadcrumbs",breadcrumbs)
+    context = add_properties({},"breadcrumbs",breadcrumbs)
     """TO_DO
         VALIDAR EL USO DE request.session.get("username", "Anónimo") 
     """

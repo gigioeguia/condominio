@@ -15,4 +15,24 @@
 {% endblock %}
 {% block extra_js %}
 <script src="{% static 'js/forms.js' %}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const service = document.getElementById("id_service");
+    const domain = document.getElementById("div_id_domain");
+
+    function toggleDomain() {
+        if (service.value === "") {
+            domain.style.display = "";
+        } else {
+            domain.style.display = "none";
+        }
+    }
+
+    service.addEventListener("change", toggleDomain);
+
+    // Ejecutar al cargar la página
+    toggleDomain();
+});
+</script>
 {% endblock %}

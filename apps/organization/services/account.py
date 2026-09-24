@@ -1,6 +1,5 @@
 import json
 import os, requests
-from urllib import parse
 from dotenv import load_dotenv
 
 load_dotenv()

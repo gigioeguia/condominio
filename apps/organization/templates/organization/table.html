@@ -111,7 +111,7 @@
 
       // Construcción de la URL con el namespace "organization"
       $.ajax({
-        url: "{% url 'organization:get_detalle' 'REPLACE_NAME' %}".replace("REPLACE_NAME", rowCompany),
+        url: "{% url 'organization:get_detalls' 'REPLACE_NAME' %}".replace("REPLACE_NAME", rowCompany),
         type: "GET",
         success: function(data) {
           console.log(data);

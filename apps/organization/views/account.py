@@ -1,19 +1,11 @@
-import json
-import os
 from django.urls import reverse
 import pandas as pd
-import requests
-import re
 import logging
 
 from django.contrib import messages
-from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
-from django.views.decorators.http import require_GET
-from django_tables2 import RequestConfig
-from django_tables2.export import TableExport
 from ..forms.account import CatalogoCuentasForm
-from config.utils import agregar_atributos, agregar_data_Tab, getRequestException, obtener_mensaje_erpnext, serialize_dates
+from config.utils import add_properties, agregar_data_Tab
 from ..services.account import get_acounts_type, get_acounts_root_type, get_plan_pago, get_centro_costo, get_libro_finanzas, get_report_type, \
     get_account, update_fiedl_company, get_value_field
 from ..services.company import get_company_by_name    
@@ -218,9 +210,9 @@ def catalogo_cuentas(request):
         {"label": "Catálogo de cuentas", "url": None},
     ]
 
-    context = agregar_atributos({}, "breadcrumbs", breadcrumbs)
+    context = add_properties({}, "breadcrumbs", breadcrumbs)
     context = agregar_data_Tab("company_options.json", context)
-    context = agregar_atributos(context, "active_tab", "acount")
+    context = add_properties(context, "active_tab", "acount")
 
     session_company_name = request.session.get("companyName", "")
 
@@ -354,7 +346,7 @@ def catalogo_cuentas(request):
 
         return redirect("organization:catalogo_cuentas")
 
-    context = agregar_atributos(context, "form", form)
+    context = add_properties(context, "form", form)
 
     return render(
         request,

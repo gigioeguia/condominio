@@ -8,7 +8,7 @@ from django.conf import settings
 
 from datetime import date, datetime
 
-def agregar_atributos(json_data, key, valor):
+def add_properties(json_data, key, valor):
     json_data[key] = valor
     return json_data
 
@@ -44,8 +44,8 @@ def agregar_data_Tab(json_filename, context=None):
     with json_path.open("r", encoding="utf-8") as file:
         component_data = json.load(file)
     
-    context = agregar_atributos(context, "json_filename", json_filename) 
-    context = agregar_atributos(context, "component_data", component_data)  
+    context = add_properties(context, "json_filename", json_filename) 
+    context = add_properties(context, "component_data", component_data)  
     return context
 
 def obtener_plan_acounts(json_filename):

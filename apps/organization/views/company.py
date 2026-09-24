@@ -17,15 +17,15 @@ from ..tables.company import OrganizationTable
 from ..forms.company import ImportJsonForm, OrganizationForm, OrganizationImportForm, OrganizationFilterForm
 from ..services.company import get_organizations, get_company_by_name, search_resource, get_chart_acount_for_country, get_imprimir, saveCompany
 
-from config.utils import agregar_atributos, getRequestException, agregar_data_Tab, obtener_mensaje_erpnext, serialize_dates  
+from config.utils import add_properties, getRequestException, agregar_data_Tab, obtener_mensaje_erpnext, serialize_dates  
 from config.decorators import session_required
 
 logger = logging.getLogger(__name__)
 
 
 @require_GET
-def get_detalle(request, name):
-    logger.info("get_detalle")
+def get_detalls(request, name):
+    logger.info("get_detalls")
     response = get_company_by_name(name)
     data = response.json()
     return JsonResponse(data["data"])
@@ -115,21 +115,21 @@ def compania(request,name=None):
             getRequestException(f"Error al consultar compañía: {resp.text}", resp.status_code, logger)
         data = resp.json()
         company = data["data"]
-        context = agregar_atributos(context, "action", 1)
-        context = agregar_atributos(context, "disabled_tab", "0")
+        context = add_properties(context, "action", 1)
+        context = add_properties(context, "disabled_tab", "0")
         company["action"]=1
         form = OrganizationForm(initial=company)   
         form.fields["company_name"].widget.attrs["readonly"] = True
         form.fields["abbr"].widget.attrs["readonly"] = True
     else:
-        context = agregar_atributos({}, "action", 0)
-        context = agregar_atributos(context, "disabled_tab", "1")
+        context = add_properties({}, "action", 0)
+        context = add_properties(context, "disabled_tab", "1")
         form = OrganizationForm()
-    context = agregar_atributos(context, "breadcrumbs", breadcrumbs)
+    context = add_properties(context, "breadcrumbs", breadcrumbs)
     context = agregar_data_Tab("company_options.json", context)
-    context = agregar_atributos(context,"active_tab","compania")
-    context = agregar_atributos(context,"name",name)
-    context = agregar_atributos(context,"form",form)
+    context = add_properties(context,"active_tab","compania")
+    context = add_properties(context,"name",name)
+    context = add_properties(context,"form",form)
     return render(
         request,
         "organization/compania.html",
@@ -142,7 +142,7 @@ def companias_list(request):
     error_message = None
     organizations = []
     breadcrumbs = [ { "label": "Organizaciones", "url": None, } ]
-    context = agregar_atributos( {}, "breadcrumbs", breadcrumbs, )
+    context = add_properties( {}, "breadcrumbs", breadcrumbs, )
     try:
         response = get_organizations()
         response.raise_for_status()
@@ -195,14 +195,14 @@ def companias_list(request):
         "abbr": request.GET.get("abbr", ""),
         "country": request.GET.get("country", ""),
     }
-    context = agregar_atributos(context, "form", form)
-    context = agregar_atributos(
+    context = add_properties(context, "form", form)
+    context = add_properties(
         context,
         "error_message",
         error_message,
     )
-    context = agregar_atributos(context, "table", table)
-    context = agregar_atributos(context, "filters", filters)
+    context = add_properties(context, "table", table)
+    context = add_properties(context, "filters", filters)
     if request.GET.get("_export") == "xlsx":
         export = TableExport("xlsx", table=table)
         return export.response(
@@ -252,12 +252,12 @@ def save_company_data(request, company_data=None):
     if int(data["action"]) == 0:
         response = saveCompany("post", data)
     mensaje = obtener_mensaje_erpnext(response.text)
-    resultado = agregar_atributos({}, "status_code", response.status_code)
+    resultado = add_properties({}, "status_code", response.status_code)
     if response.status_code != 200:
-        resultado = agregar_atributos(resultado, "mensaje", mensaje)  
+        resultado = add_properties(resultado, "mensaje", mensaje)  
         return resultado    
 
-    resultado = agregar_atributos(resultado, "status_code", response.text)
+    resultado = add_properties(resultado, "status_code", response.text)
     return resultado
 
 @session_required("login")
@@ -274,7 +274,7 @@ def organization_import_file(request):
         },
     ]
     context = {}
-    context = agregar_atributos(context, "breadcrumbs", breadcrumbs)
+    context = add_properties(context, "breadcrumbs", breadcrumbs)
     
     if request.method == "POST":
         form = OrganizationImportForm(request.POST, request.FILES)
@@ -285,34 +285,34 @@ def organization_import_file(request):
             dataframe = _read_organization_import_file(archivo)
             organization = {}
             for _, fila in dataframe.iterrows():
-                organization = agregar_atributos(organization, "company_name", fila["company_name"])
-                organization = agregar_atributos(organization, "abbr", fila["abbr"])
-                organization = agregar_atributos(organization, "default_currency", fila["default_currency"])
-                organization = agregar_atributos(organization, "tax_id", fila["tax_id"])
-                organization = agregar_atributos(organization, "country", fila["country"])
-                organization = agregar_atributos(organization, "domain", fila["domain"])
-                organization = agregar_atributos(organization, "date_of_establishment", fila["date_of_establishment"])
-                organization = agregar_atributos(organization, "date_of_incorporation", fila["date_of_incorporation"])
+                organization = add_properties(organization, "company_name", fila["company_name"])
+                organization = add_properties(organization, "abbr", fila["abbr"])
+                organization = add_properties(organization, "default_currency", fila["default_currency"])
+                organization = add_properties(organization, "tax_id", fila["tax_id"])
+                organization = add_properties(organization, "country", fila["country"])
+                organization = add_properties(organization, "domain", fila["domain"])
+                organization = add_properties(organization, "date_of_establishment", fila["date_of_establishment"])
+                organization = add_properties(organization, "date_of_incorporation", fila["date_of_incorporation"])
                 
-                organization = agregar_atributos(organization, "date_of_commencement", fila["date_of_commencement"])
-                organization = agregar_atributos(organization, "phone_no", fila["phone_no"])
-                organization = agregar_atributos(organization, "fax", fila["fax"])
-                organization = agregar_atributos(organization, "email", fila["email"])
-                organization = agregar_atributos(organization, "company_description", fila["company_description"])
+                organization = add_properties(organization, "date_of_commencement", fila["date_of_commencement"])
+                organization = add_properties(organization, "phone_no", fila["phone_no"])
+                organization = add_properties(organization, "fax", fila["fax"])
+                organization = add_properties(organization, "email", fila["email"])
+                organization = add_properties(organization, "company_description", fila["company_description"])
                 
-                organization = agregar_atributos(organization, "website", fila["website"])
-                organization = agregar_atributos(organization, "registration_details", fila["registration_details"])
-                organization = agregar_atributos(organization, "chart_of_accounts", fila["chart_of_accounts"])
-                organization = agregar_atributos(organization, "create_chart_of_accounts_based_on", fila["create_chart_of_accounts_based_on"])
-                organization = agregar_atributos(organization, "action", 0)
+                organization = add_properties(organization, "website", fila["website"])
+                organization = add_properties(organization, "registration_details", fila["registration_details"])
+                organization = add_properties(organization, "chart_of_accounts", fila["chart_of_accounts"])
+                organization = add_properties(organization, "create_chart_of_accounts_based_on", fila["create_chart_of_accounts_based_on"])
+                organization = add_properties(organization, "action", 0)
             result = save_company_data(request, organization)
             return procesar_resultado_empresa(request, result)
     else:
         form = OrganizationImportForm()
     
-    context = agregar_atributos(context, "form", form)
-    context = agregar_atributos(context, "active_tab", "file")
-    context = agregar_atributos(context, "disabled_tab", "0")
+    context = add_properties(context, "form", form)
+    context = add_properties(context, "active_tab", "file")
+    context = add_properties(context, "disabled_tab", "0")
     context = agregar_data_Tab("import_options.json", context)
     return render(
         request,
@@ -334,9 +334,9 @@ def organization_import_json(request):
             },
         ]
     context = {}
-    context = agregar_atributos(context, "breadcrumbs", breadcrumbs)
-    context = agregar_atributos(context, "active_tab", "json")
-    context = agregar_atributos(context, "disabled_tab","0")
+    context = add_properties(context, "breadcrumbs", breadcrumbs)
+    context = add_properties(context, "active_tab", "json")
+    context = add_properties(context, "disabled_tab","0")
     context = agregar_data_Tab("import_options.json", context)
     
     if request.method == "POST":
@@ -351,7 +351,7 @@ def organization_import_json(request):
                 form.add_error("text", "El contenido no es un JSON válido.")
     else:
         form = ImportJsonForm()
-    context = agregar_atributos(context,"form", form)
+    context = add_properties(context,"form", form)
     return render(
         request,
         "organization/import_json.html",

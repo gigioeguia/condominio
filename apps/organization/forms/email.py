@@ -1,20 +1,12 @@
-import re
-
 from django import forms
-from django.core.validators import RegexValidator
-from django.core.exceptions import ValidationError
-from crispy_forms.bootstrap import Accordion, AccordionGroup
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import (
-    Field,
     Layout,
     Row,
     Column,
     HTML,
-    Submit,
     Div
 )
-from django.urls import reverse
 
 class EmailAccountForm(forms.Form):
     email_id = forms.EmailField(
@@ -26,20 +18,22 @@ class EmailAccountForm(forms.Form):
         label="Servicios",
         choices=[
             ("", "Seleccione un servicio"),
-            ("IMAP", "IMAP"),
-            ("POP", "POP"),
+            ("Frappe Mail","Frappe Mail"),
+            ("Sendgrid","Sendgrid"),
+            ("SparkPost","SparkPost"),
             ("Exchange", "Exchange"),
-            ("Gmail", "Gmail"),
+            ("GMail", "GMail"),
             ("Outlook", "Outlook"),
         ],
-        required=False,
+        required=True,
     )
 
     company = forms.CharField(
         label="Compañía",
         required=True,
+        disabled=True,
     )
-
+    #TO_DO: falta una vista para agregar el Dominio    
     domain = forms.CharField(
         label="Dominio",
         required=False,
@@ -72,20 +66,16 @@ class EmailAccountForm(forms.Form):
         required=True,
     )
 
-    email_login = forms.BooleanField(
-        label="Utilice un correo electrónico diferente",
-        required=False,
-    )
-
     password = forms.CharField(
         label="Contraseña",
         required=False,
         widget=forms.PasswordInput(
-            render_value=False,
+            render_value=True,
             attrs={
                 "autocomplete": "new-password",
             },
         ),
+        help_text='Por seguridad no se muestra la contraseña, solo puedes modifiar por una nueva',
     )
 
     awaiting_password = forms.BooleanField(
@@ -98,9 +88,9 @@ class EmailAccountForm(forms.Form):
         required=False,
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, company=None, **kwargs):
         super().__init__(*args, **kwargs)
-
+        self.fields["company"].initial = company
         self.helper = FormHelper()
         self.helper.form_method = "post"
         self.helper.form_class = "row g-3"
@@ -131,7 +121,6 @@ class EmailAccountForm(forms.Form):
 
             Row(
                 Column("authentication_method", css_class="col-md-6"),
-                Column("email_login", css_class="col-md-6"),
             ),
 
             Row(
@@ -146,16 +135,17 @@ class EmailAccountForm(forms.Form):
             HTML("<hr>"),
 
             Div(
-                Submit(
-                    "submit",
-                    "Guardar cuenta",
-                    css_class="btn btn-primary",
+                HTML(
+                    '<button type="submit" name="submit" '
+                    'class="btn btn-primary">'
+                    '<i class="bi bi-save me-1" aria-hidden="true"></i>'
+                    '</button>'
                 ),
                 HTML(
                     '<a href="{% url "organization:company_email" %}" '
-                    'class="btn btn-secondary ms-2">Cancelar</a>'
+                    'class="btn btn-secondary ms-2"><i class="bi bi-x-lg" aria-hidden="true"></i></a>'
                 ),
-                css_class="mt-3",
+                css_class="d-flex justify-content-end mt-3",
             ),
         ) 
                
