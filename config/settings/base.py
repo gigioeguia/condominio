@@ -30,6 +30,9 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap5',
     'apps.organization',
+    'apps.homeowner',
+    "apps.subscription",
+    "apps.itemservice",
     'apps.login.apps.LoginConfig'
 ]
 

@@ -17,3 +17,7 @@
     background-color: #0d6efd;
     color: #212529;
 }
+
+table .empty {
+    text-align: center;
+}

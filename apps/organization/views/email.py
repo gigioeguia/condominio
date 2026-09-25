@@ -78,7 +78,6 @@ def email_create_update(request,name=None):
         result = response.json()
         data = result.get("data", [])
         email_data = data[0]
-        print(f"email_data {email_data}")
         form = EmailAccountForm(
             initial={
                 "email_id": email_data.get("email_id"),

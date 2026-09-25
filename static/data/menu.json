@@ -15,6 +15,21 @@
             "title": "Organizaciones",
             "url": "organization:list",
             "children": []
+          },
+          {
+            "title": "Servicio",
+            "url": "itemservice:list",
+            "children": []
+          },
+          {
+            "title": "Residente",
+            "url": "homeowner:list",
+            "children": []
+          },
+          {
+            "title": "Subcripciones",
+            "url": "subscription:list",
+            "children": []
           }
         ]
       },

@@ -16,4 +16,7 @@ urlpatterns = [
     path("error/", error_view, name="error_page"),
     path('favicon.ico', lambda r: HttpResponse(status=204)),
     path('.well-known/appspecific/com.chrome.devtools.json', lambda r: HttpResponse(status=204)),
+    path("homeowner/", include("apps.homeowner.urls")),
+    path("subscription/", include("apps.subscription.urls")),
+    path("itemservice/", include("apps.itemservice.urls")),
 ]
