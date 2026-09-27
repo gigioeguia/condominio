@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from ..forms.account import CatalogoCuentasForm
 from config.utils import add_properties, agregar_data_Tab
 from ..services.account import get_acounts_type, get_acounts_root_type, get_plan_pago, get_centro_costo, get_libro_finanzas, get_report_type, \
-    get_account, update_fiedl_company, get_value_field
+    get_account, update_field_company, get_value_field
 from ..services.company import get_company_by_name    
 from config.decorators import session_required
 
@@ -45,7 +45,7 @@ def comparar_valores(company_name, cuentas):
 def guardar_cambios(company_name, cuentas):
     result_save_field = []
     for field in cuentas:
-        response = update_fiedl_company(field, company_name)
+        response = update_field_company(field, company_name)
         if response.status_code != 200:
             logger.error("Error HTTP update_field_company: %s %s", response.status_code, response.text)
             continue

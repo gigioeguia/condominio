@@ -5,7 +5,6 @@ from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.utils import timezone
-from django.contrib.auth import login
 
 from django.conf import settings
 

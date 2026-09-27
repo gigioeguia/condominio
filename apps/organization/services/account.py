@@ -15,95 +15,59 @@ HEADERS = {
     "Cookie": f"sid={os.getenv('ERP_SESSION_ID')}",
     "Accept": "application/json",
 }
+ACCOUNT_FIELDS = [ "name", "account_name", "account_number",
+                    "company", "account_currency", "account_type",]
 
-def get_acounts_type(type, company ):
-    url = f"{ERP_BASE_URL}/api/resource/Account"
-    filters = [["account_type", "=", type],["company","=",company],["is_group","=",0],["disabled","=",0]]
-    fields = ["name","account_name","account_number","company","account_currency","account_type"]
+def _get_resource(resource, filters=None, fields=None):
+    url = f"{ERP_BASE_URL}/api/resource/{resource}"
     params = {
-        "filters": json.dumps(filters),
-        "fields": json.dumps(fields),
-        "limit_page_length": 0
-    }
-    return requests.get(url, headers=HEADERS, params=params)
+        "filters": json.dumps(filters or []),
+        "fields": json.dumps(fields or ["name"]),
+        "limit_page_length": 0,
+        }
+    return requests.get( url, headers=HEADERS, params=params, timeout=30 )
 
-def get_acounts_root_type(type, company ):
-    url = f"{ERP_BASE_URL}/api/resource/Account"
-    filters = [["root_type", "=", type],["company","=",company],["is_group","=",0],["disabled","=",0]]
-    fields = ["name","account_name","account_number","company","account_currency","account_type"]
-    params = {
-        "filters": json.dumps(filters),
-        "fields": json.dumps(fields),
-        "limit_page_length": 0
-    }
-    return requests.get(url, headers=HEADERS, params=params)
+def _get_accounts(filters):
+    return _get_resource( "Account", filters=filters, fields=ACCOUNT_FIELDS,
+    )
+
+def get_acounts_type(account_type, company ):
+    return _get_accounts([["account_type", "=", account_type], ["company", "=", company],
+                        ["is_group", "=", 0], ["disabled", "=", 0], ])
+
+def get_acounts_root_type(root_type, company):
+    return _get_accounts([["root_type", "=", root_type], ["company", "=", company],
+                        ["is_group", "=", 0], ["disabled", "=", 0], ])
 
 def get_plan_pago():
-    url= f"{ERP_BASE_URL}/api/resource/Payment Terms Template"
-    filters = [["docstatus","=",0]]
-    fields = ["name","name"]
-    params = {
-        "filters": json.dumps(filters),
-        "fields": json.dumps(fields),
-        "limit_page_length": 0
-    }
-    return requests.get(url, headers=HEADERS, params=params)
+    return _get_resource( "Payment Terms Template",
+        filters=[ ["docstatus", "=", 0], ],
+        fields=[ "name", ], )    
 
 def get_centro_costo(company):
-    url= f"{ERP_BASE_URL}/api/resource/Cost Center"
-    filters = [["is_group","=",0],["disabled","=",0],["company","=",company]]
-    fields=["name"]
-    params = {
-        "filters": json.dumps(filters),
-        "fields": json.dumps(fields),
-        "limit_page_length": 0
-    }
-    return requests.get(url, headers=HEADERS, params=params)   
+    return _get_resource( "Cost Center",
+        filters=[ ["is_group", "=", 0], ["disabled", "=", 0], ["company", "=", company], ],
+        fields=[ "name", ],)    
 
 def get_libro_finanzas():
-    url= f"{ERP_BASE_URL}/api/resource/Finance Book"
-    filters = [["docstatus","=",0]]
-    fields=["name"]
-    params = {
-        "filters": json.dumps(filters),
-        "fields": json.dumps(fields),
-        "limit_page_length": 0
-    }
-    return requests.get(url, headers=HEADERS, params=params)
+    return _get_resource( "Finance Book",
+    filters=[ ["docstatus", "=", 0], ],
+    fields=[ "name", ], )    
 
 def get_report_type(report_type,company):
-    url = f"{ERP_BASE_URL}/api/resource/Account"
-    filters = [["report_type", "=", report_type],["company","=",company],["is_group","=",0],["disabled","=",0]]
-    fields = ["name","account_name","account_number","company","account_currency","account_type"]
-    params = {
-        "filters": json.dumps(filters),
-        "fields": json.dumps(fields),
-        "limit_page_length": 0
-    }
-    return requests.get(url, headers=HEADERS, params=params)    
+    return _get_accounts([ ["report_type", "=", report_type], ["company", "=", company],
+                        ["is_group", "=", 0], ["disabled", "=", 0],])
        
 def get_acounts_type_and_root_type(types,company):
-    url = f"{ERP_BASE_URL}/api/resource/Account"
-    filters = [["account_type", "=", types[0]], ["root_type","=",types[1]],["company","=",company],["is_group","=",0],["disabled","=",0]]
-    fields = ["name","account_name","account_number","company","account_currency","account_type"]
-    params = {
-        "filters": json.dumps(filters),
-        "fields": json.dumps(fields),
-        "limit_page_length": 0
-    }
-    return requests.get(url, headers=HEADERS, params=params)
+    return _get_accounts([ ["account_type", "=", types[0]], ["root_type", "=", types[1]],
+                        ["company", "=", company], ["is_group", "=", 0], ["disabled", "=", 0], ])
 
-def get_account(nameCuenta):
-    url = f"{ERP_BASE_URL}/api/resource/Account"
-    filters = [["account_name", "=", nameCuenta]]
-    fields = ["name", "account_name", "account_number", "account_type", "root_type", "company", "parent_account"]
-    params = {
-        "filters": json.dumps(filters),
-        "fields": json.dumps(fields)
-    }
-    return requests.get(url, headers=HEADERS, params=params, timeout=30)
+def get_account(account_name):
+    return _get_resource( "Account",
+        filters=[ ["account_name", "=", account_name], ],
+        fields=[ "name", "account_name", "account_number", "account_type", "root_type", "company", "parent_account", ],)
 
-def update_fiedl_company(field, company_name):
+def update_field_company(field, company_name):
     response = get_account(field["value"])
     if response.status_code != 200:
         print("Error HTTP:", response.status_code, response.text)
@@ -118,11 +82,6 @@ def update_fiedl_company(field, company_name):
     return None
 
 def get_value_field(company_name,field):
-    url = f"{ERP_BASE_URL}/api/resource/Company"
-    filters = [["name", "=", company_name]]
-    fields = [f"{field}"]
-    params = {
-        "filters": json.dumps(filters),
-        "fields": json.dumps(fields)
-    }
-    return requests.get(url, headers=HEADERS, params=params)
+    return _get_resource( "Company",
+        filters=[ ["name", "=", company_name], ],
+        fields=[ field, ], )
