@@ -1,16 +1,13 @@
 from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, HTML, Row, Column, Submit
+from crispy_forms.layout import Layout, HTML, Row, Column, Submit, Field
 
 ITEM_GROUPS = [
-    ("Services", "Services"),
-    ("Products", "Products"),
+    ("Servicios", "Servicios"),
 ]
 
 UOM_CHOICES = [
     ("Nos", "Nos"),
-    ("Kg", "Kg"),
-    ("Box", "Box"),
 ]
 
 
@@ -33,7 +30,7 @@ class ItemServiceForm(forms.Form):
         required=False
     )
 
-    item_group = forms.ChoiceField(
+    item_group_name = forms.ChoiceField(
         label="Grupo",
         choices=ITEM_GROUPS
     )
@@ -41,6 +38,7 @@ class ItemServiceForm(forms.Form):
     stock_uom = forms.ChoiceField(
         label="Unidad de Medida",
         choices=UOM_CHOICES,
+        required=False,
         initial="Nos"
     )
 
@@ -75,6 +73,11 @@ class ItemServiceForm(forms.Form):
         initial="MXN",
         required=False
     )
+    
+    name_price = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -83,6 +86,7 @@ class ItemServiceForm(forms.Form):
         self.helper.form_method = "post"
 
         self.helper.layout = Layout(
+            Field("name_price"),
             Row(
                 Column("item_code", css_class="col-md-4"),
                 Column("item_name", css_class="col-md-8"),
@@ -91,7 +95,7 @@ class ItemServiceForm(forms.Form):
                 Column("description", css_class="col-md-12"),
             ),
             Row(
-                Column("item_group", css_class="col-md-6"),
+                Column("item_group_name", css_class="col-md-6"),
                 Column("stock_uom", css_class="col-md-6"),
             ),
             Row(

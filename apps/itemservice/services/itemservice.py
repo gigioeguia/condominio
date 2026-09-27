@@ -54,7 +54,7 @@ def get_item_by_item_code(item_code,item_group_name):
 def get_price_by_item_code(item_code):
     return _get_resource("Item Price",
             [["item_code","=",item_code],["docstatus","=",0]],
-            ["item_code","price_list_rate","currency"])
+            ["name","item_code","price_list_rate","currency"])
 
 def get_price_list():
     return _get_resource("Item Price",
@@ -65,3 +65,19 @@ def get_itemservices_list():
     return _get_resource("Item",
             [["docstatus","=",0]],
             ["name","item_code","item_name","item_group","standard_rate"])    
+
+def add_item_code_service(data):
+    url = f"{ERP_BASE_URL}/api/resource/Item"
+    return requests.post(url, headers=HEADERS, json=data)
+
+def update_item_code_service(data,item_code):
+    url = f"{ERP_BASE_URL}/api/resource/Item/{item_code}"
+    return requests.put(url, headers=HEADERS, json=data)
+
+def add_item_code_price(data):
+    url = f"{ERP_BASE_URL}/api/resource/Item Price"
+    return requests.post(url, headers=HEADERS, json=data)
+    
+def update_item_code_price(data):
+    url = f"{ERP_BASE_URL}/api/resource/Item Price/{data["name_price"]}"
+    return requests.put(url, headers=HEADERS, json=data)

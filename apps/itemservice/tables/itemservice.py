@@ -14,7 +14,7 @@ class ItemPriceTable(tables.Table):
         verbose_name="Precio",
         attrs={
             "td": {
-                "class": "text-center",
+                "class": "text-end",
             }
         },
     )
