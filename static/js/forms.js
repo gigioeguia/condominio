@@ -80,5 +80,29 @@ $(function () {
         initializeRemoteSelect("#id_chart_of_accounts",chartOfAccountsSelect,{ "country": selectedText });
         $("#id_chart_of_accounts").val(null).trigger("change");
     });
+    
+    const deleteModal = document.getElementById("deleteModal");
 
+    if (!deleteModal) {
+        return;
+    }
+
+    const deleteForm = document.getElementById("deleteForm");
+    const deleteItemName = document.getElementById("deleteItemName");
+
+    deleteModal.addEventListener("show.bs.modal", function (event) {
+        const button = event.relatedTarget;
+
+        const deleteUrl = button.getAttribute('data-delete-url');
+        const itemName = button.getAttribute('data-item-name');
+
+        deleteForm.action = deleteUrl;
+        deleteItemName.textContent = itemName;
+    });
+
+    deleteModal.addEventListener("hidden.bs.modal", function () {
+        deleteForm.action = "";
+        deleteItemName.textContent = "";
+    });
+    
 });

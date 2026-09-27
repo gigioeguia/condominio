@@ -1,10 +1,11 @@
 import json
 import logging
+import requests
 from datetime import datetime
 
 from django.contrib import messages
-import requests
 from config.decorators import session_required
+from django.views.decorators.http import require_POST
 from django.shortcuts import redirect, render
 from django.utils.html import strip_tags
 from config.utils import add_properties
@@ -12,7 +13,8 @@ from config.utils import add_properties
 from ..tables.itemservice import ItemPriceTable
 
 from ..services.itemservice import get_price_list, is_servicio, add_servicio, get_item_by_item_code, get_price_by_item_code, \
-                                   add_item_code_service, update_item_code_service, add_item_code_price, update_item_code_price
+                                   add_item_code_service, update_item_code_service, add_item_code_price, update_item_code_price, \
+                                   deleteItem    
 from ..forms.itemservice import ItemServiceForm
 
 logger = logging.getLogger(__name__)
@@ -209,7 +211,11 @@ def itemservice_form(request,item_code):
 
     return render( request, "itemservice/itemform.html", context, )        
 
-
+@require_POST
+def itemservice_delete(request,item_code):
+    response = deleteItem(item_code)
+    messages.success(request, f"Se elimino correctamente {item_code} {response.json().get("data")}")
+    return redirect("itemservice:list")
       
     
    

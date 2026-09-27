@@ -31,12 +31,16 @@ class ItemPriceTable(tables.Table):
         template_code="""
         <div class="btn-group" role="group">
             <a href="{% url 'itemservice:edit' record.item_code %}" 
-                class="btn btn-sm btn-link">
+                class="btn btn-sm btn-link text-warning">
                 <i class="bi bi-pencil-square" aria-hidden="true"></i>
             </a>
 
-            <a href="{% url 'itemservice:delete' record.item_code %}"
-                class="btn btn-sm btn-link" >
+            <a href="#"
+                class="btn btn-sm btn-link text-danger"
+                data-bs-toggle="modal"
+                data-bs-target="#deleteModal"
+                data-delete-url="{% url 'itemservice:delete' record.item_code %}"
+                data-item-name="{{ record.item_code }}">
                 <i class="bi bi-trash" aria-hidden="true"></i>
             </a>
         </div>""",

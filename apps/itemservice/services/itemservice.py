@@ -81,3 +81,7 @@ def add_item_code_price(data):
 def update_item_code_price(data):
     url = f"{ERP_BASE_URL}/api/resource/Item Price/{data["name_price"]}"
     return requests.put(url, headers=HEADERS, json=data)
+
+def deleteItem(item_code):
+    url = f"{ERP_BASE_URL}/api/resource/Item/{item_code}/"
+    return requests.delete(url, headers=HEADERS)

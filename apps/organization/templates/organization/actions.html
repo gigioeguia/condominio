@@ -1,6 +1,6 @@
 <a
     href="{% url 'organization:imprimir' record.name %}"
-    class="btn btn-sm btn-link"
+    class="btn btn-sm btn-link text-success"
     target="_blank"
     title="Imprimir"
     aria-label="Imprimir"
@@ -10,7 +10,7 @@
 
 <a
     href="{% url 'organization:compania' record.name %}"
-    class="btn btn-sm btn-link"
+    class="btn btn-sm btn-link text-warning"
     title="Modificar"
     aria-label="Modificar"
     onclick="event.stopPropagation();">
@@ -19,7 +19,7 @@
 
 <button
     type="button"
-    class="btn btn-sm btn-link"
+    class="btn btn-sm btn-link text-danger"
     data-bs-toggle="modal"
     data-bs-target="#deleteModal{{ record.abbr }}"
     title="Eliminar"
