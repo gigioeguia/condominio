@@ -8,7 +8,7 @@ from config.decorators import session_required
 from django.views.decorators.http import require_POST
 from django.shortcuts import redirect, render
 from django.utils.html import strip_tags
-from config.utils import add_properties
+from config.utils import add_properties, get_message_error
 
 from ..tables.itemservice import ItemPriceTable
 
@@ -148,41 +148,17 @@ def save_item_and_price(item_code, data):
         )
 
     if response_item.status_code != 200:
-        return _get_message_error(response_item)
+        return get_message_error(response_item)
     
     if response_price is None:
         return "No se persistio precio"
 
     if response_price.status_code != 200:
-        return _get_message_error(response_price)
+        return get_message_error(response_price)
     
     mensajeItem = response_item.json().get("data").get("name")
     mensajePrice = response_price.json().get("data").get("price_list_rate")
     return f"Se guardo el servicio: {mensajeItem} con el precio: ${mensajePrice}"
-
-def _get_message_error(response):
-    try:
-        response_data = response.json()
-    except ValueError:
-        return response.text
-
-    raw_messages = response_data.get("_server_messages", "[]")
-
-    try:
-        server_messages = json.loads(raw_messages)
-    except (TypeError, json.JSONDecodeError):
-        return str(raw_messages)
-
-    messages = []
-
-    for raw_message in server_messages:
-        try:
-            message_data = json.loads(raw_message)
-            messages.append(message_data.get("message", raw_message))
-        except (TypeError, json.JSONDecodeError):
-            messages.append(str(raw_message))
-    return "\n".join(messages)
-            
 
 def itemservice_form(request,item_code):
     logger.info("itemservice_form")

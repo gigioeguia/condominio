@@ -23,12 +23,7 @@ def _get_resource(resource, filters=None, fields=None):
         "fields": json.dumps(fields or ["name"]),
         "limit_page_length": 0,
     }
-    return requests.get(
-        url,
-        headers=HEADERS,
-        params=params,
-        timeout=30
-    )
+    return requests.get( url, headers=HEADERS, params=params, timeout=30 )
 
 def is_servicio(item_group_name):
     return _get_resource("Item Group",

@@ -104,3 +104,26 @@ def procesar_acount_json(acountNew,account_data_chart):
                 account["company"]=acountNew["valorCompany"]
                 account["currency"]=acountNew["valorCurrency"]
                 return account
+
+def get_message_error(response):
+    try:
+        response_data = response.json()
+    except ValueError:
+        return response.text
+
+    raw_messages = response_data.get("_server_messages", "[]")
+
+    try:
+        server_messages = json.loads(raw_messages)
+    except (TypeError, json.JSONDecodeError):
+        return str(raw_messages)
+
+    messages = []
+
+    for raw_message in server_messages:
+        try:
+            message_data = json.loads(raw_message)
+            messages.append(message_data.get("message", raw_message))
+        except (TypeError, json.JSONDecodeError):
+            messages.append(str(raw_message))
+    return "\n".join(messages)
