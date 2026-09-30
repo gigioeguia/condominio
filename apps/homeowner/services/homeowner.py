@@ -106,7 +106,6 @@ def hadContacto(customer_primary_contact):
     url = ( f"{ERP_BASE_URL}/api/resource/Contact/{encoded_name}")
     return requests.get( url, headers=HEADERS, timeout=30 )
     
-
 def update_customer_contact(data,customer_name):
     if not customer_name:
         raise ValueError("El nombre del Contact es obligatorio")
@@ -124,10 +123,6 @@ def list_homeowner():
     except Exception as e:
         return []
 
-def contact_main_update(customer_primary_contact,payload):
-    url = (
-        f"{ERP_BASE_URL}/api/resource/Contact/"
-        f"{quote(str(customer_primary_contact), safe='')}"
-    )
-    return requests.put( url, headers=HEADERS, json=payload, timeout=30, )
-    
+def delete_customer(customer_name):
+    url = f"{ERP_BASE_URL}/api/resource/Customer/{customer_name}"
+    return requests.delete( url, headers=HEADERS, timeout=30 ) 

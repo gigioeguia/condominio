@@ -40,7 +40,7 @@ class CustomerTable(tables.Table):
                         class="btn btn-sm btn-link text-danger"
                         data-bs-toggle="modal"
                         data-bs-target="#deleteModal"
-                        data-delete-url="{% url 'homeowner:delete' record.customer_primary_contact %}"
+                        data-delete-url="{% url 'homeowner:delete' record.customer_name %}"
                         data-item-name="{{ record.customer_name }}">
                         <i class="bi bi-trash" aria-hidden="true"></i>
                     </a>

@@ -9,7 +9,7 @@ from config.utils import add_properties, get_message_error
 
 from ..forms.homeowner import CondominoForm
 from ..services.homeowner import add_customer_name, update_customer_name, get_detail_condominio, list_homeowner, update_customer_contact, \
-            hadContacto, contact_main_update
+            hadContacto, delete_customer
 from ..tables.homeowner import CustomerTable
 
 logger = logging.getLogger(__name__)
@@ -118,4 +118,9 @@ def homeowner_form_update(request,customer_primary_contact=None):
         request,
         "homeowner/homeownersform.html",
         context,
-    )    
+    )
+    
+def homeowner_form_delete(request, customer_name):
+    respose = delete_customer(customer_name);
+    messages.success(request, f"se elimino de forma correct {customer_name}")
+    return redirect("homeowner:list")
