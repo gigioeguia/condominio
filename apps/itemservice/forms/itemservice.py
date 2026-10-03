@@ -15,7 +15,8 @@ class ItemServiceForm(forms.Form):
     item_code = forms.CharField(
         label="Código",
         max_length=50,
-        required=True
+        required=True,
+        widget=forms.TextInput(attrs={'placeholder': 'Ej. MANTO-001'})
     )
 
     item_name = forms.CharField(

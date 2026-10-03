@@ -1,9 +1,48 @@
-['{\n "session_expired": 1,\n "data": {\n "name": "MANTO-0002",\n "owner": "ppeguia@gmail.com",\n "creation": "2026-09-27 13:25:23.548831",\n "modified": "2026-09-27 13:25:23.548831",\n "modified_by": "ppeguia@gmail.com",\n "docstatus": 0,\n "idx": 0,\n "naming_series": "STO-ITEM-.YYYY.-",\n "item_code": "MANTO-0002",\n "item_name": "ddsadas",\n "item_group": "Servicios",\n "stock_uom": "Nos",\n "disabled": 0,\n "is_stock_item": 1,\n "is_fixed_asset": 0,\n "auto_create_assets": 0,\n "is_grouped_asset": 0,\n "is_sales_item": 1,\n "allow_alternative_item": 0,\n "has_variants": 0,\n "is_purchase_item": 0,\n "is_customer_provided_item": 0,\n "standard_rate": 0.0,\n "opening_stock": 0.0,\n "over_delivery_receipt_allowance": 0.0,\n "over_billing_allowance": 0.0,\n "description": "sdasdsadas",\n "enable_deferred_expense": 0,\n "no_of_months_exp": 0,\n "enable_deferred_revenue": 0,\n "no_of_months": 0,\n "valuation_method": "",\n "valuation_rate": 0.0,\n "end_of_life": "2099-12-31",\n "default_material_request_type": "Purchase",\n "weight_per_unit": 0.0,\n "allow_negative_stock": 0,\n "has_batch_no": 0,\n "create_new_batch": 0,\n "has_expiry_date": 0,\n "shelf_life_in_days": 0,\n "retain_sample": 0,\n "sample_quantity": 0,\n "has_serial_no": 0,\n "variant_based_on": "Item Attribute",\n "min_order_qty": 0.0,\n "safety_stock": 0.0,\n "lead_time_days": 0,\n "last_purchase_rate": 0.0,\n "delivered_by_supplier": 0,\n "grant_commission": 1,\n "max_discount": 0.0,\n "include_item_in_manufacturing": 1,\n "is_sub_contracted_item": 0,\n "production_capacity": 0,\n "total_projected_qty": 0.0,\n "customer_code": "",\n "inspection_required_before_purchase": 0,\n "inspection_required_before_delivery": 0,\n "doctype": "Item",\n "item_defaults": [],\n "uoms": [\n {\n "name": "i33j9g6mpa",\n "owner": "ppeguia@gmail.com",\n "creation": "2026-09-27 13:25:23.554137",\n "modified": "2026-09-27 13:25:23.554137",\n "modified_by": "ppeguia@gmail.com",\n "docstatus": 0,\n "idx": 1,\n "uom": "Nos",\n "conversion_factor": 1.0,\n "parent": "MANTO-0002",\n "parentfield": "uoms",\n "parenttype": "Item",\n "doctype": "UOM Conversion Detail"\n
-                }\n
-            ],\n "taxes": [],\n "barcodes": [],\n "reorder_levels": [],\n "attributes": [],\n "supplier_items": [],\n "customer_items": []\n
-        }\n
-    },
-    {\n "session_expired": 1,\n "data": {\n "name": "i33bn51fgd",\n "owner": "ppeguia@gmail.com",\n "creation": "2026-09-27 13:25:23.575038",\n "modified": "2026-09-27 13:25:23.575038",\n "modified_by": "ppeguia@gmail.com",\n "docstatus": 0,\n "idx": 0,\n "item_code": "MANTO-0002",\n "uom": "Nos",\n "packing_unit": 0,\n "item_name": "ddsadas",\n "item_description": "sdasdsadas",\n "price_list": "Standard Selling",\n "buying": 0,\n "selling": 1,\n "currency": "MXN",\n "price_list_rate": 12121.0,\n "valid_from": "2026-09-27",\n "lead_time_days": 0,\n "doctype": "Item Price"\n
-        }\n
-    }'
-]
+{
+    "data": {
+        "name": "Casa A-Facturación",
+        "owner": "ppeguia@gmail.com",
+        "creation": "2026-09-30 17:37:29.932660",
+        "modified": "2026-10-03 08:02:26.353998",
+        "modified_by": "ppeguia@gmail.com",
+        "docstatus": 0,
+        "idx": 0,
+        "address_title": "Casa A",
+        "address_type": "Billing",
+        "address_line1": "Andres Soler U.H. El Porvenir II",
+        "address_line2": "privada uno casa A",
+        "city": "Lerma",
+        "county": "Condado1",
+        "state": "Estado de México",
+        "country": "Mexico",
+        "pincode": "52004",
+        "email_id": "ppeguia@gmail.com",
+        "phone": "44444444",
+        "fax": "1111111111",
+        "tax_category": "",
+        "is_primary_address": 1,
+        "is_shipping_address": 1,
+        "disabled": 0,
+        "is_your_company_address": 0,
+        "doctype": "Address",
+        "links": [
+            {
+                "name": "rbn3umvl3t",
+                "owner": "ppeguia@gmail.com",
+                "creation": "2026-09-30 17:37:29.932660",
+                "modified": "2026-10-03 08:02:26.353998",
+                "modified_by": "ppeguia@gmail.com",
+                "docstatus": 0,
+                "idx": 1,
+                "link_doctype": "Customer",
+                "link_name": "Casa A",
+                "link_title": "Casa A",
+                "parent": "Casa A-Facturación",
+                "parentfield": "links",
+                "parenttype": "Address",
+                "doctype": "Dynamic Link",
+                "__unsaved": 1
+            }
+        ]
+    }
+}

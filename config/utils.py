@@ -127,3 +127,22 @@ def get_message_error(response):
         except (TypeError, json.JSONDecodeError):
             messages.append(str(raw_message))
     return "\n".join(messages)
+
+def to_bool(value):
+    if isinstance(value, bool):
+        return value
+
+    if isinstance(value, int):
+        return value == 1
+
+    if isinstance(value, str):
+        return value.strip().lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+            "si",
+            "sí",
+        }
+
+    return False

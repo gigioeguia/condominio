@@ -11,5 +11,59 @@
 
         </form>
     </div>
-</div>    
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const customerName = document.getElementById("id_customer_name");
+    
+    const addressAction = document.getElementById( "address-action" );
+
+    if (!customerName || !addressAction) {
+        return;
+    }   
+    
+    const direccionPrincipal = document.getElementById(
+        "id_direccion_principal"
+    );
+
+    const urlTemplate = addressAction.dataset.urlTemplate;
+
+    function updateAddressState() {        
+        const hasCustomerName = customerName.value.trim().length > 0;
+        addressAction.disabled = !hasCustomerName;
+
+        if (!hasCustomerName) {
+            addressAction.href = "#";
+            addressAction.classList.add("disabled");
+            addressAction.setAttribute(
+                "aria-disabled",
+                "true"
+            );
+            addressAction.style.pointerEvents = "none";
+            return;
+        }
+
+        const encodedCustomerName = encodeURIComponent(
+            customerName.value.trim()
+        );
+
+        const newUrl = urlTemplate.replace(
+            "__CUSTOMER_NAME__",
+            encodedCustomerName
+        );
+
+        addressAction.href = newUrl;
+        addressAction.classList.remove("disabled");
+        addressAction.setAttribute(
+            "aria-disabled",
+            "false"
+        );
+        addressAction.style.pointerEvents = "auto";
+    }
+
+    customerName.addEventListener("input", updateAddressState);
+
+    updateAddressState();    
+});
+</script>    
 {% endblock %}    

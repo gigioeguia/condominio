@@ -186,16 +186,6 @@ class OrganizationForm(forms.Form):
         ),
     )
     
-    """    def clean(self):
-        cleaned_data = super().clean()
-        country = cleaned_data.get("country")
-        tax_id = cleaned_data.get("tax_id")
-
-        if country == "Mexico" and not tax_id:
-            raise ValidationError({"tax_id": "El RFC es obligatorio cuando el país es Mexico."})
-
-        return cleaned_data """
-
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
         super().__init__(*args, **kwargs)
