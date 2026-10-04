@@ -3,7 +3,7 @@ from django.urls import path
 from .views.company import companias_list, compania, delete, get_currencies, get_countries, get_chart_templates, get_detalls, \
                            organization_import_file, organization_import_json, imprimir
 from .views.account import catalogo_cuentas, company_cuentas
-from .views.email import company_email, email_create_update, save_email_account
+from .views.email import  email_create_update, save_email_account
 
 app_name = "organization"
 
@@ -27,10 +27,7 @@ urlpatterns = [
   
   path( "imprimir/<str:name>/", imprimir, name="imprimir" ),
   
-  path( "company_email/", company_email, name="company_email" ),
-  path( "email_account/<str:name>/", company_email, name="email_account_detail"),
-  path( "email_account/<str:name>/edit/", company_email, name="email_account_edit"),
-  path( "email_account<str:name>/delete/", company_email, name="email_account_delete"), 
+  path( "company_email/", email_create_update, name="company_email" ),
   
   path( "email_create_update/", email_create_update, name="email_create_update" ),
   path( 'email_create_update/<str:name>/', email_create_update, name='email_create_update'),

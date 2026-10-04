@@ -76,13 +76,12 @@ def get_type_address_choices():
     
     
 
-def get_domicilio_type_customer(customer_name):
+def get_domicilio_email_mobile_type_customer(customer_name):
     response = _get_resource("Address",[["Dynamic Link","link_doctype","=","Customer"],["Dynamic Link","link_name","=",customer_name]],["*"])
-    print( f"{response.status_code} {response.text}" )
     if response.status_code != 200:
-        return {}
+        return None
     else:
-        return response.json().get("data", [])[0] if response.json().get("data") else {}
+        return response.json().get("data", [])[0] if response.json().get("data") else None
 
 def add_addres(data):
     url = f"{ERP_BASE_URL}/api/resource/Address"

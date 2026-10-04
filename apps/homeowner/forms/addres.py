@@ -10,6 +10,28 @@ class AddressForm(forms.Form):
         required=False,
         widget=forms.HiddenInput()
     )
+    email_id = forms.EmailField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+
+    phone = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+    fax = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+    tax_category = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+    
+    disabled = forms.BooleanField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
     
     address_title = forms.CharField(
         label="Propiedad",
@@ -22,17 +44,7 @@ class AddressForm(forms.Form):
             }
         ),
     )
-
-    email_id = forms.EmailField(
-        label="Dirección de correo electrónico",
-        required=False,
-        widget=forms.EmailInput(
-            attrs={
-                "class": "form-control",
-            }
-        ),
-    )
-
+    
     address_type = forms.ChoiceField(
         label="Tipo de dirección",
         required=True,
@@ -41,16 +53,6 @@ class AddressForm(forms.Form):
         widget=forms.Select(
             attrs={
                 "class": "form-select",
-            }
-        ),
-    )
-
-    phone = forms.CharField(
-        label="Teléfono",
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                "class": "form-control",
             }
         ),
     )
@@ -65,28 +67,8 @@ class AddressForm(forms.Form):
         ),
     )
 
-    fax = forms.CharField(
-        label="Fax",
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                "class": "form-control",
-            }
-        ),
-    )
-
     address_line2 = forms.CharField(
         label="Dirección línea 2",
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                "class": "form-control",
-            }
-        ),
-    )
-
-    tax_category = forms.CharField(
-        label="Categoría de impuestos",
         required=False,
         widget=forms.TextInput(
             attrs={
@@ -145,16 +127,6 @@ class AddressForm(forms.Form):
         ),
     )
 
-    disabled = forms.BooleanField(
-        label="Deshabilitado",
-        required=False,
-        widget=forms.CheckboxInput(
-            attrs={
-                "class": "form-check-input",
-            }
-        ),
-    )
-
     country = forms.ChoiceField(
         label="País",
         required=True,
@@ -191,38 +163,31 @@ class AddressForm(forms.Form):
 
         self.helper.layout = Layout(
             Field("name"),
+            Field("email_id"),
+            Field("phone"),
+            Field("tax_category"),
+            Field("disabled"),
             Row(
                 Column(
                     Field("address_title"),
-                    Field("address_type"),
                     Field("address_line1"),
-                    Field("address_line2"),
                     Field("city"),
-                    Field("county"),
                     Field("state"),
-                    Field("country"),
                     Field("pincode"),
                     css_class="col-md-6",
                 ),
 
                 Column(
-                    Field("email_id"),
-                    Field("phone"),
-                    Field("fax"),
-                    Field("tax_category"),
-
+                    Field("address_type"),
+                    Field("address_line2"),
+                    Field("county"),
+                    Field("country"),
                     Field(
                         "is_primary_address",
                         wrapper_class="form-check mb-3",
                     ),
-
                     Field(
                         "is_shipping_address",
-                        wrapper_class="form-check mb-3",
-                    ),
-
-                    Field(
-                        "disabled",
                         wrapper_class="form-check mb-3",
                     ),
 

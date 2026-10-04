@@ -1,5 +1,3 @@
-from django.urls import reverse
-import pandas as pd
 import logging
 
 from django.contrib import messages

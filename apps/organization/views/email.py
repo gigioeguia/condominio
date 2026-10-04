@@ -4,61 +4,32 @@ import logging
 
 from django.contrib import messages
 from django.shortcuts import render, redirect
-from django_tables2 import RequestConfig
 
-from ..tables.email import EmailAccountTable
 from ..forms.email import EmailAccountForm 
-from ..services.email import get_email_account, save_email, get_email_datails
+from ..services.email import save_email, get_email_datails
 
-from config.utils import add_properties
+from config.utils import add_properties, agregar_data_Tab
 from config.decorators import session_required
 
 logger = logging.getLogger(__name__)
-
+    
 @session_required("login") 
-def company_email(request):
+def email_create_update(request,name=None):    
+    name = request.session.get("companyName", "") if name is None else name
     username = request.session.get("username", "")
-    session_company_name = request.session.get("companyName", "")
     logger.info(
         "%s -> organization_import_json",
         username,
     )
-    context = add_properties({},"breadcrumbs", _email_breadcrumbs(session_company_name, None))
-
-    response = get_email_account(session_company_name)
-    response.raise_for_status()
-
-    response_json = response.json()
-    data = response_json.get("data", [])
-
-    table = EmailAccountTable(data)
-
-    RequestConfig(
-        request,
-        paginate={"per_page": 10},
-    ).configure(table)
-
-    context = add_properties(context,"table", table)
-    context = add_properties(context,"data", data)
-    
-    return render(
-        request,
-        "organization/emails.html",
-        context,
-    )
-    
-@session_required("login") 
-def email_create_update(request,name=None):
-    session_company_name = request.session.get("companyName", "")
-    context = add_properties({},"breadcrumbs", _email_breadcrumbs(session_company_name, name))
+    context = add_properties({},"breadcrumbs", _email_breadcrumbs(name, name))
+    context = agregar_data_Tab("company_options.json", context)
+    context = add_properties(context, "active_tab", "email")
     if request.method == "POST":
-        form = EmailAccountForm(request.POST,company=session_company_name)
+        form = EmailAccountForm(request.POST,company=name)
         if form.is_valid():
             try:
                 payload = _build_email_payload(form)
-
                 response = save_email_account(payload)
-
             except Exception as exc:
                 form.add_error(
                     None,
@@ -66,15 +37,13 @@ def email_create_update(request,name=None):
                 )
             else:
                 action = "actualizó" if name else "creó"
-
                 messages.success(
                     request,
                     f"La cuenta de correo se {action} correctamente.",
                 )
-
                 return redirect("organization:company_email")
-    elif name:
-        response = get_email_datails(session_company_name,name)
+    elif name is not None:
+        response = get_email_datails(name,name)
         result = response.json()
         data = result.get("data", [])
         email_data = data[0]
@@ -96,7 +65,7 @@ def email_create_update(request,name=None):
             },
         )
     else:
-        form = EmailAccountForm(company=session_company_name)
+        form = EmailAccountForm(company=name)
     context = add_properties(context,"form",form)
     return render(
         request,
@@ -120,31 +89,30 @@ def _email_breadcrumbs(company, name):
     return breadcrumbs
 
 def _build_email_payload(form):
-    cleaned_data = form.cleaned_data
-
-    integer_fields = (
-        "enable_incoming",
-        "enable_outgoing",
-        "awaiting_password",
-        "use_ascii_for_password",
-    )
-
-    payload = {
-        "email_id": cleaned_data["email_id"],
-        "service": cleaned_data["service"],
-        "company": cleaned_data["company"],
-        "domain": cleaned_data["domain"],
-        "email_account_name": cleaned_data["email_account_name"],
-        "authentication_method": cleaned_data["authentication_method"],
-        "email_login": cleaned_data["email_login"],
-        "password": cleaned_data["password"],
-    }
-
-    payload.update(
-        {
-            field: int(cleaned_data[field])
-            for field in integer_fields
+    try:
+        cleaned_data = form.cleaned_data
+        integer_fields = (
+            "enable_incoming",
+            "enable_outgoing",
+            "awaiting_password",
+            "use_ascii_for_password",
+        )
+        payload = {
+            "email_id": cleaned_data["email_id"],
+            "service": cleaned_data["service"],
+            "company": cleaned_data["company"],
+            "domain": cleaned_data["domain"],
+            "email_account_name": cleaned_data["email_account_name"],
+            "authentication_method": cleaned_data["authentication_method"],
+            "email_login": cleaned_data["email_id"],
+            "password": cleaned_data["password"],
         }
-    )
-
+        payload.update(
+            {
+                field: int(cleaned_data[field])
+                for field in integer_fields
+            }
+        )
+    except Exception as e:
+        print(f"ERROR: {type(e).__name__}: {e}")    
     return payload

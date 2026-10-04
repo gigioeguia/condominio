@@ -18,19 +18,8 @@ HEADERS = {
 
 def get_email_datails(company,name):
     url = f"{ERP_BASE_URL}/api/resource/Email Account"
-    filters = [["name","=",name],["company","=",company],["docstatus","=",0]]
-    fields = ["email_id","service","company","domain","name","email_account_name","enable_incoming","enable_outgoing","auth_method","password","awaiting_password","ascii_encode_password","docstatus"]
-    params = {
-        "filters": json.dumps(filters),
-        "fields": json.dumps(fields),
-        "limit_page_length": 0
-    }
-    return requests.get(url, headers=HEADERS, params=params)
-
-def get_email_account(company):
-    url = f"{ERP_BASE_URL}/api/resource/Email Account"
     filters = [["company","=",company],["docstatus","=",0]]
-    fields = ["name","docstatus","email_id","company","email_account_name","enable_incoming","enable_outgoing"]
+    fields = ["email_id","service","company","domain","name","email_account_name","enable_incoming","enable_outgoing","auth_method","password","awaiting_password","ascii_encode_password","docstatus"]
     params = {
         "filters": json.dumps(filters),
         "fields": json.dumps(fields),

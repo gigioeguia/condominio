@@ -13,7 +13,7 @@ from ..forms.homeowner import CondominoForm
 from ..forms.addres import AddressForm
 from ..services.homeowner import add_customer_name, update_customer_name, get_detail_condominio, list_homeowner, update_customer_contact, \
             hadContacto, delete_customer
-from ..services.addres import get_domicilio_type_customer, add_addres, update_address            
+from ..services.addres import get_domicilio_email_mobile_type_customer, add_addres, update_address            
 from ..tables.homeowner import CustomerTable
 
 logger = logging.getLogger(__name__)
@@ -106,23 +106,46 @@ def _get_address_detail_only_string(address_detail):
     ]
     return ", ".join(filter(None, address_components))
 
-def _get_customer_detail_to_update(customer_primary_contact, context):
-    homeowner = _get_condominio_detail(customer_primary_contact)
-    address_detail = get_domicilio_type_customer(homeowner.get("customer_name"))
-    homeowner["direccion_principal"] = _get_address_detail_only_string(address_detail)
-    context.get("breadcrumbs", []).append({"label": "Modidifcar","url": None,})
-    context.get("breadcrumbs", []).append({"label": homeowner.get("customer_name"), "url": None,})
+def _get_customer_detail_to_agregar(context):
+    context.get("breadcrumbs", []).append({"label": "Agregar","url": None,})
+    context.get("breadcrumbs", []).append({"label": "Nuevo","url": None,})
     address_url = reverse( "homeowner:address_main_update", 
                     kwargs={
-                        "actionDir": "Modificar",
+                        "actionDir": "Agregar",
                         "customer_name": "customer_name"
                     },
                 )
-    result = CondominoForm(
-        initial=homeowner, address_url=address_url, actionDir="Modificar"
+    return CondominoForm(address_url=address_url, actionDir="Agregar")
+
+def _get_customer_detail_to_update(context, homeowner, address_detail):
+    action_dir = "Agregar" if address_detail is None else "Modificar"
+    initial = homeowner.copy()   
+    if address_detail is not None:
+        initial["direccion_principal"] = _get_address_detail_only_string(address_detail)
+
+    address_url = reverse(
+        "homeowner:address_main_update",
+        kwargs={
+            "actionDir": action_dir,
+            "customer_name": "customer_name",
+        },
     )
-    result.fields["customer_name"].widget.attrs["readonly"] = True
-    return result
+    breadcrumbs = context.setdefault("breadcrumbs", [])
+    breadcrumbs.extend(
+        [
+            {"label": "Modificar", "url": None},
+            {"label": initial.get("customer_name"), "url": None},
+        ]
+    )
+
+    form = CondominoForm(
+        initial=initial,
+        address_url=address_url,
+        actionDir=action_dir,
+    )
+    form.fields["customer_name"].widget.attrs["readonly"] = True
+    return form
+
     
 def homeowner_form_update(request,customer_primary_contact=None):
     logger.info(f"homeowner_form {customer_primary_contact}")
@@ -137,18 +160,15 @@ def homeowner_form_update(request,customer_primary_contact=None):
                 messages.success(request, mensaje)
                 return redirect("homeowner:list")
     elif customer_primary_contact is None:
-        context.get("breadcrumbs", []).append({"label": "Agregar","url": None,})
-        address_url = reverse( "homeowner:address_main_update", 
-                        kwargs={
-                            "actionDir": "Agregar",
-                            "customer_name": "customer_name"
-                        },
-                    )
-        form = CondominoForm(address_url=address_url, actionDir="Crear" )
+        form = _get_customer_detail_to_agregar(context)
     else:
-        form = _get_customer_detail_to_update(
-            customer_primary_contact, context
-        )
+        homeowner = _get_condominio_detail(customer_primary_contact)
+        if homeowner:
+            address_email_mobile_detail = get_domicilio_email_mobile_type_customer(homeowner.get("customer_name"))
+            form = _get_customer_detail_to_update(context, homeowner, address_email_mobile_detail)
+        else:
+            form = _get_customer_detail_to_agregar(context)
+            
     context = add_properties(context,"form", form)
     return render(
         request,
@@ -162,7 +182,12 @@ def homeowner_form_delete(request, customer_name):
     return redirect("homeowner:list")
 
 def _get_detail_addreess_to_update(customer_name, context):
-    addres_detail = get_domicilio_type_customer(customer_name)
+    addres_detail = get_domicilio_email_mobile_type_customer(customer_name)
+    customer_primary_contact = addres_detail.get("address_title") + "-" + addres_detail.get("address_title") 
+    response_customer = get_detail_condominio(customer_primary_contact)
+    customer = response_customer.json().get("data", [])[0]
+    addres_detail["email_id"] = customer.get("email_id")
+    addres_detail["phone"] = customer.get("mobile_no")
     addres_detail["is_primary_address"] = to_bool( addres_detail.get("is_primary_address") )
     addres_detail["is_shipping_address"] = to_bool( addres_detail.get("is_shipping_address") )
     addres_detail["disabled"] = to_bool( addres_detail.get("disabled") )
@@ -176,7 +201,7 @@ def save_detalle_address(data,acction):
             "link_name": data["address_title"],
         }
     ]
-    response = add_addres(data) if acction == "Aggregar" else update_address(data)
+    response = add_addres(data) if acction == "Agregar" else update_address(data)
     if response.status_code != 200:
         print(f"ERROR response.text {response.text}")
     return response.text
@@ -185,8 +210,8 @@ def save_detalle_address(data,acction):
 def address_main_for_homeowner(request,actionDir,customer_name):    
     logger.info(f"homeowner_form {address_main_for_homeowner}")
     context = add_properties({},"breadcrumbs", _breadcrumbs())
-    context.get("breadcrumbs", []).append({"label": "Direccion","url": None,})
-    context.get("breadcrumbs", []).append({"label": actionDir,"url": None,})
+    context.get("breadcrumbs", []).append({"label": "Direccion", "url": None,})
+    context.get("breadcrumbs", []).append({"label": actionDir, "url": None,})
     if request.method == "POST":
         form = AddressForm(request.POST)
         if form.is_valid():
@@ -203,7 +228,7 @@ def address_main_for_homeowner(request,actionDir,customer_name):
                 customer_primary_contact=f"{link_name}-{link_name}",
             )
     elif actionDir == "Agregar":
-        initial = {"direccion":customer_name}
+        initial = {"address_title":customer_name}
         form = AddressForm(initial=initial)
     else:
         form = _get_detail_addreess_to_update(customer_name, context)

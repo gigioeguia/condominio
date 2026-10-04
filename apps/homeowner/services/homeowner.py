@@ -88,7 +88,7 @@ def choicesTerritory():
 def get_detail_condominio(customer_primary_contact):
     return _get_resource("Customer",
                          filters=[["customer_primary_contact","=",customer_primary_contact],["docstatus","=", 0]],
-                         fields=["customer_primary_contact","name","customer_name","alias","mobile_no","email_id","customer_type","customer_group","territory"])
+                         fields=["customer_primary_contact","name","customer_name","alias","mobile_no","email_id","customer_type","customer_group","territory","customer_primary_contact"])    
 
 def add_customer_name(data):
     url= f"{ERP_BASE_URL}/api/resource/Customer"
